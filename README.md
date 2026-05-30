@@ -1,8 +1,21 @@
+<div align="center">
+
+<img src="assets/vector-logo.png" alt="Vector Work" width="200"/>
+
 # Vector Work
 
-<img src="assets/vector-logo-sm.png" alt="Vector" width="384">
+**Виртуальные сотрудники на базе Hermes Agent — 14 профессиональных ролей из Cowork (Anthropic)**
 
-Виртуальные сотрудники на базе Hermes Agent. 14 профессиональных ролей из экосистемы Cowork (Anthropic), адаптированных под российский рынок.
+[![Hermes Agent](https://img.shields.io/badge/Hermes-Agent-blue.svg)](https://github.com/NousResearch/hermes-agent)
+[![Roles: 14](https://img.shields.io/badge/Roles-14-green.svg)](#роли)
+[![Skills: 141](https://img.shields.io/badge/Skills-141-orange.svg)](https://github.com/anthropics/knowledge-work-plugins)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)](LICENSE)
+
+</div>
+
+---
+
+14 профессиональных ролей (141 навык) из экосистемы Cowork (Anthropic), адаптированных под российский рынок. Активируются по интенту — скажи «проверь NDA» и legal включится сам.
 
 ## Архитектура
 
@@ -18,13 +31,6 @@
            ├── НАУКА: bio-research
            └── МЕТА: cowork-plugin-management
 ```
-
-## Как это работает
-
-1. Ты ставишь задачу — обычным языком
-2. Hermes находит подходящую роль по интенту
-3. Навыки роли загружаются автоматически
-4. Результат — как от профильного сотрудника
 
 ## Роли
 
@@ -49,29 +55,16 @@
 ```bash
 git clone https://github.com/Osmosy/vector-work.git
 
-# Пример: «проверь этот NDA»
-hermes --skills vector-work "Проверь этот NDA на риски"
-
-# Пример: «подготовь PRD»
-hermes --skills vector-work "Напиши PRD для фичи экспорта в PDF"
-
-# Создать новую роль под свою задачу
-hermes --skills vector-work "Создай роль для отдела логистики"
+# Срабатывает автоматически по интенту
+hermes "Проверь этот NDA на риски"           # → legal
+hermes "Напиши PRD для фичи экспорта в PDF"  # → product-management
+hermes "Создай роль для отдела логистики"     # → cowork-plugin-management
 ```
 
 ## Установка
 
-Роли уже установлены в Hermes через Cowork Roles:
-```bash
-ls ~/.hermes/skills/cowork-roles/
-```
-
-Если нет — установить:
-```bash
-git clone https://github.com/anthropics/knowledge-work-plugins /tmp/cowork
-cp -r /tmp/cowork/plugins/* ~/.hermes/skills/cowork-roles/
-```
+Роли уже установлены в Hermes: `~/.hermes/skills/cowork-roles/` (141 навык).
 
 ## Источник
 
-Адаптировано из [Anthropic Knowledge Work Plugins](https://github.com/anthropics/knowledge-work-plugins) — 17 ролей, 141 навык. Лицензия: Apache 2.0.
+Адаптировано из [Anthropic Knowledge Work Plugins](https://github.com/anthropics/knowledge-work-plugins) — Apache 2.0.
