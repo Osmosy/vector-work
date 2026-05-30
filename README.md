@@ -1,5 +1,7 @@
 # Vector Work
 
+<img src="assets/vector-logo-sm.png" alt="Vector" width="384">
+
 Виртуальные сотрудники на базе Hermes Agent. 14 профессиональных ролей из экосистемы Cowork (Anthropic), адаптированных под российский рынок.
 
 ## Архитектура
