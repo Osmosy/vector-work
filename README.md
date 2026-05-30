@@ -49,6 +49,18 @@
 | **bio-research** | PubMed, геномика, литература, эксперименты | 5 |
 | **small-business** | Инвойсы, учёт, зарплата, налоги, CRM | 31 |
 | **cowork-plugin-management** | Создание и настройка новых ролей (мета) | 4 |
+| **project-management** | Senior PM, Scrum Master, Jira, Confluence, Atlassian admin | 9 |
+| **research** | Обзор литературы, гранты, патенты, syllabus | 8 |
+| **productivity** | Тайм-трекинг, фокус-сессии, meeting notes | 6 |
+
+### Новые домены (claude-skills, май 2026)
+
+| Роль | Навыков | Источник |
+|------|---------|---------|
+| project-management | 9 | `claude-skills/project-management/` — 12 Python-тулов, Atlassian MCP |
+| research | 8 | `claude-skills/research/` — академические исследования |
+| productivity | 6 | `claude-skills/productivity/` — личная продуктивность |
+| research-ops | 5 | `claude-skills/research-ops/` — enterprise R&D (→ Vector Marketing) |
 
 ## Быстрый старт
 
