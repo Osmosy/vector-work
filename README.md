@@ -4,18 +4,29 @@
 
 # Vector Work
 
-**Виртуальные сотрудники на базе Hermes Agent — 14 профессиональных ролей из Cowork (Anthropic)**
+**Виртуальные сотрудники на базе Hermes Agent — 17 доменов Cowork (Anthropic), 212 навыков**
 
 [![Hermes Agent](https://img.shields.io/badge/Hermes-Agent-blue.svg)](https://github.com/NousResearch/hermes-agent)
-[![Roles: 14](https://img.shields.io/badge/Roles-14-green.svg)](#роли)
-[![Skills: 141](https://img.shields.io/badge/Skills-141-orange.svg)](https://github.com/anthropics/knowledge-work-plugins)
+[![Domains: 17](https://img.shields.io/badge/Domains-17-green.svg)](#роли)
+[![Skills: 212](https://img.shields.io/badge/Skills-212-orange.svg)](https://github.com/anthropics/knowledge-work-plugins)
+[![Sync: 2026-08-30](https://img.shields.io/badge/Sync-2026__08__30-blueviolet.svg)](https://github.com/anthropics/knowledge-work-plugins/commits/main)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)](LICENSE)
 
 </div>
 
 ---
 
-14 профессиональных ролей (141 навык) из экосистемы Cowork (Anthropic), адаптированных под российский рынок. Активируются по интенту — скажи «проверь NDA» и legal включится сам.
+Копия [Anthropic Knowledge Work Plugins](https://github.com/anthropics/knowledge-work-plugins)
+(23.7k★) для Hermes Agent. 17 доменов-ролей (212 навыков), синхронизировано
+с upstream 2026-08-30. Активируются по интенту — скажи «проверь NDA» и legal включится сам.
+
+### Синхронизация с upstream
+
+| Дата | Что обновлено |
+|------|---------------|
+| 2026-08-30 | productivity — security-fix (escape file-derived content в dashboard, 06.08); sales — +Monday.com MCP (23.06); small-business — Google MCP удалён upstream (30.07). Полная копия 17 доменов из upstream main |
+| 2026-06-20 | восстановление cowork-roles (32 skills) |
+| 2026-05-30 | init: 14 ролей |
 
 ## Архитектура
 
