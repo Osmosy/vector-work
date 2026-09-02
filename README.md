@@ -4,6 +4,8 @@
 
 # Vector Work
 
+[![Architecture: live](https://img.shields.io/badge/Architecture-live_diagram-4f8ff7.svg)](https://osmosy.github.io/vector-work/docs/vector-work.architecture.html)
+
 **Виртуальные сотрудники на базе Hermes Agent — 17 доменов Cowork (Anthropic), 212 навыков**
 
 [![Hermes Agent](https://img.shields.io/badge/Hermes-Agent-blue.svg)](https://github.com/NousResearch/hermes-agent)
