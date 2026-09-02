@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Vector Work — виртуальные сотрудники",
+    "output": "docs/vector-work.architecture.html",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "intent-routing",
+        "label": "Интент → роль",
+        "focus": ["user", "hermes", "cowork", "roles"],
+        "note": "Запрос на естественном языке маршрутизируется в домен-роль автоматически."
+      },
+      {
+        "id": "domains",
+        "label": "17 доменов",
+        "focus": ["cowork", "roles", "biz", "product", "data", "meta"],
+        "note": "Домены-группы: бизнес, продукт, данные, юридика, финансы, люди, операции, наука, мета."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "user",
+      "type": "external",
+      "label": "Пользователь",
+      "sublabel": "задача на естественном языке",
+      "pos": [60, 300],
+      "size": [150, 64]
+    },
+    {
+      "id": "hermes",
+      "type": "backend",
+      "label": "Hermes Agent",
+      "sublabel": "оркестратор",
+      "pos": [300, 300],
+      "size": [140, 64]
+    },
+    {
+      "id": "cowork",
+      "type": "backend",
+      "label": "Cowork-плагины",
+      "sublabel": "17 доменов, 212 навыков",
+      "pos": [540, 300],
+      "size": [170, 64],
+      "tag": "~/.hermes/skills/cowork-roles"
+    },
+    {
+      "id": "biz",
+      "type": "backend",
+      "label": "Бизнес",
+      "sublabel": "productivity, small-business",
+      "pos": [800, 90],
+      "size": [160, 64]
+    },
+    {
+      "id": "product",
+      "type": "backend",
+      "label": "Продукт",
+      "sublabel": "PM, engineering, design",
+      "pos": [800, 200],
+      "size": [160, 64]
+    },
+    {
+      "id": "data",
+      "type": "backend",
+      "label": "Данные",
+      "sublabel": "data, enterprise-search",
+      "pos": [800, 310],
+      "size": [160, 64]
+    },
+    {
+      "id": "people",
+      "type": "backend",
+      "label": "Люди и операции",
+      "sublabel": "HR, operations, legal, finance",
+      "pos": [800, 420],
+      "size": [170, 64]
+    },
+    {
+      "id": "science",
+      "type": "backend",
+      "label": "Наука",
+      "sublabel": "bio-research, research",
+      "pos": [800, 530],
+      "size": [160, 64]
+    },
+    {
+      "id": "meta",
+      "type": "database",
+      "label": "Мета",
+      "sublabel": "cowork-plugin-management",
+      "pos": [540, 530],
+      "size": [170, 64]
+    },
+    {
+      "id": "roles",
+      "type": "database",
+      "label": "Skills (212)",
+      "sublabel": "SKILL.md + references",
+      "pos": [1060, 300],
+      "size": [150, 64]
+    }
+  ],
+  "connections": [
+    { "from": "user", "to": "hermes", "label": "«Проверь NDA на риски»", "labelAt": [255, 384] },
+    { "from": "hermes", "to": "cowork", "label": "интент-роутинг" },
+    { "from": "cowork", "to": "biz", "label": "маршрутизация", "fromSide": "top", "toSide": "bottom" },
+    { "from": "cowork", "to": "product", "fromSide": "top", "toSide": "bottom" },
+    { "from": "cowork", "to": "data", "label": "по домену задачи" },
+    { "from": "cowork", "to": "people", "fromSide": "bottom", "toSide": "bottom" },
+    { "from": "cowork", "to": "science", "fromSide": "bottom", "toSide": "left" },
+    { "from": "cowork", "to": "meta", "label": "создание ролей", "fromSide": "left", "toSide": "top", "via": [[490, 332], [490, 470], [625, 470]], "labelAt": [450, 400] },
+    { "from": "biz", "to": "roles", "fromSide": "right", "toSide": "top" },
+    { "from": "product", "to": "roles", "fromSide": "right", "toSide": "left" },
+    { "from": "data", "to": "roles", "fromSide": "right", "toSide": "left" },
+    { "from": "people", "to": "roles", "fromSide": "right", "toSide": "left" },
+    { "from": "science", "to": "roles", "fromSide": "right", "toSide": "bottom" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Принцип работы",
+      "items": [
+        "Активация по интенту: скажи «проверь NDA» — legal включается сам",
+        "17 доменов Cowork (Anthropic), 212 навыков, синхронизация с upstream",
+        "Каждая роль = папка навыков с SKILL.md и references",
+        "Мета-домен создаёт новые роли под задачу"
+      ]
+    }
+  ]
+}
