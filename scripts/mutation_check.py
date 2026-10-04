@@ -91,8 +91,8 @@ MUTATIONS = [
     ("S13", "profiles/data.md", "    владелец:    Михаил (Osmosy)",
      "    владелец:    <кто отвечает>",
      "статус ACTIVE при незаполненном владельце"),
-    ("S14", "agents/orchestrator.md", "## Роли (18 доменов, 252 навыков)",
-     "## Роли: 14 ролей организации",
+    ("S14", "agents/orchestrator.md", "## Роли (18 доменов, 252 навыка)",
+     "## Роли (18 доменов, 14 ролей организации)",
      "устаревшее «14 ролей» в прозе"),
     ("S14", "AGENTS.md", "252 навыка. Роли описаны", "212 навыков. Роли описаны",
      "устаревшее число навыков в AGENTS.md (N4)"),
@@ -112,11 +112,11 @@ MUTATIONS = [
      "число в html-схеме разошлось с деревом"),
     ("S18", "docs/vector-work.architecture.json", "Skills (252)", "Skills (212)",
      "число навыков в схеме разошлось с деревом"),
-    ("S19", "README.md", "| **sales** | Пайплайн, звонки, прогноз, конкурентная разведка | 36 | ACTIVE |",
+    ("S19", "README.md", "| **sales** | Пайплайн, звонки, прогноз, конкурентная разведка | 36 | ACTIVE (пакет) |",
      "| **sales** | Пайплайн, звонки, прогноз, конкурентная разведка | 36 | DRAFT |",
      "колонка «Контракт» в README разошлась с фактом приёмки"),
-    ("S11b", "agents/orchestrator.md", "Контрактов работников: **17**",
-     "Контрактов работников: **18**", "блок приёмки в оркестраторе разошёлся с фактом"),
+    ("S11b", "agents/orchestrator.md", "Документов: **18**",
+     "Документов: **19**", "блок приёмки в оркестраторе разошёлся с фактом"),
     ("S20", "profiles/STATUS.md", "плейсхолдеров <…>       99",
      "плейсхолдеров <…>      128", "число плейсхолдеров в STATUS разошлось с фактом"),
     ("S21", "profiles/REGISTRY.md", "Терминал получает только: `bio-research`",
@@ -125,13 +125,25 @@ MUTATIONS = [
      "бейдж синхронизации разошёлся с локом"),
     ("S23", "profiles/data.md", "8444efcd48f7", "deadbeef0000",
      "контракт не называет закреплённую ревизию апстрима"),
-    ("S24", "skills/cowork-roles/MODIFICATIONS.md", "capacity-plan", "ИКС-ФАЙЛ",
-     "изменённый файл убран из MODIFICATIONS.md (N2)"),
+    ("S24", "upstream.lock.json", '"upstream_only": [', '"upstream_only_hidden": [',
+     "лок перестал показывать файлы, которые есть только в апстриме (N2)"),
     ("S24", "upstream.lock.json", '"files": {', '"files_hidden": {',
      "лок перестал хранить пофайловые хэши (N2)"),
     # --- добираем непокрытые (план от Claude, T12) ---
     ("S6", "profiles/sales.md", "## 3. Разрешённые инструменты (least privilege)",
      "## 3. Инструменты вообще", "контракт без раздела «Разрешённые инструменты»"),
+]
+
+# Случаи, требующие ДОПИСАТЬ строку (журнал append-only: важна последняя запись)
+APPEND_CASES = [
+    ("S27", "profiles/approvals.jsonl",
+     '{"stem": "sales", "body_sha256": "deadbeefdeadbeef", "applied": "PAGE", '
+     '"reviewer": "x", "date": "2026-10-04", "commit": "x", "note": "принято пакетом"}',
+     "последняя запись: PAGE при note «пакетом» (M3)"),
+    ("S12", "profiles/approvals.jsonl",
+     '{"stem": "data", "body_sha256": "0000000000000000", "applied": "BATCH", '
+     '"reviewer": "x", "date": "2026-10-04", "commit": "x", "note": "тест"}',
+     "последняя запись журнала не совпадает с телом документа"),
 ]
 
 # Отдельные случаи, требующие удаления файла
@@ -201,6 +213,20 @@ def main():
             miss += 1
             print(f"  MISS {code}  {what}  ← проверка НЕ ловит это")
 
+    for code, rel, line, what in APPEND_CASES:
+        shutil.rmtree(tmp, ignore_errors=True)
+        copy_tree(tmp)
+        fpath = pathlib.Path(tmp) / rel
+        with open(fpath, "a") as f:
+            f.write(line + "\n")
+        out = run_validator(tmp)
+        if f"ERROR {code}" in out:
+            ok += 1
+            print(f"  OK   {code}  {what}")
+        else:
+            miss += 1
+            print(f"  MISS {code}  {what}")
+
     for code, rel, what in DELETE_CASES:
         shutil.rmtree(tmp, ignore_errors=True)
         copy_tree(tmp)
@@ -227,7 +253,8 @@ def main():
     total = ok + miss
     print(f"\nмутаций поймано: {ok}/{total}")
     if n_checks is not None:
-        covered = len({m[0] for m in MUTATIONS} | {c[0] for c in DELETE_CASES})
+        covered = len({m[0] for m in MUTATIONS} | {c[0] for c in DELETE_CASES}
+                      | {c[0] for c in APPEND_CASES})
         print(f"проверок в валидаторе: {n_checks}; покрыто мутациями кодов: {covered} "
               f"(+ инвариант N1 отдельно)")
     if notapplied:

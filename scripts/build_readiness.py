@@ -89,7 +89,8 @@ def main():
     by_size = sorted(rows, key=lambda r: -r["skills"])
     for r in by_size[:6]:
         A(f"    {r['skills']:3}  {r['domain']}")
-    A(f"        ...  всего {tot['skills']} навыков в {tot['domains']} каталогах\n")
+    A(f"        ...  всего {tot['skills']} {T.plural(tot['skills'], 'навык', 'навыка', 'навыков')} "
+          f"в {tot['domains']} каталогах\n")
 
     A(MARK_BEGIN)
     A(keep.rstrip())

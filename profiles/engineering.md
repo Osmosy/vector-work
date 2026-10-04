@@ -2,7 +2,7 @@
 
     роль:        engineering
     версия:      0.1
-    статус:      ACTIVE — тело совпадает с одобренным (PAGE 2026-10-04, ff40b57)
+    статус:      ACTIVE — тело совпадает с одобренным (BATCH 2026-10-04, b34761f)
     владелец:    Михаил (Osmosy)
     домен:       skills/cowork-roles/engineering/ — 10 навыков (по дереву)
     источник:    Anthropic Cowork (Apache-2.0) @ 8444efcd48f7 (2026-10-01)

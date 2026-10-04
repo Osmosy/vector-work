@@ -203,12 +203,12 @@ if orch.exists():
     else:
         _blk = _ot.split(_s, 1)[1].split(_e, 1)[0]
         _acc = T.acceptance()
-        _m = re.search(r'Контрактов работников:\s*\*{0,2}(\d+)\*{0,2}', _blk)
+        _m = re.search(r'Документов:\s*\*{0,2}(\d+)\*{0,2}', _blk)
         if not _m:
-            errors.append("S11b orchestrator.md: в блоке нет «Контрактов работников: N»")
-        elif int(_m.group(1)) != _acc["contracts"]:
-            errors.append(f"S11b orchestrator.md: контрактов {_m.group(1)} "
-                          f"≠ факт {_acc['contracts']}")
+            errors.append("S11b orchestrator.md: в блоке нет «Документов: N»")
+        elif int(_m.group(1)) != _acc["contracts"] + len(_acc["playbooks"]):
+            errors.append(f"S11b orchestrator.md: документов {_m.group(1)} ≠ факт "
+                          f"{_acc['contracts'] + len(_acc['playbooks'])}")
         _m2 = re.search(r'плейбуков:\s*(\d+)', _blk)
         if _m2 and int(_m2.group(1)) != len(_acc["playbooks"]):
             errors.append(f"S11b orchestrator.md: плейбуков {_m2.group(1)} "
@@ -316,6 +316,13 @@ if _lock24.exists():
     for _f in _L24.get("modified", []):
         if _f not in _mod_txt:
             errors.append(f"S24 изменённый файл не отмечен в MODIFICATIONS.md: {_f}")
+        else:
+            # строка про файл обязана нести одобрение владельца: молчаливая
+            # перезапись апстрим-файла = инверсия смысла (M1)
+            _line = next((l for l in _mod_txt.splitlines() if _f in l), "")
+            if "одобрено владельцем" not in _line:
+                errors.append(f"S24 {_f}: изменение не одобрено владельцем "
+                              f"(нет строки «одобрено владельцем: <дата>»)")
     for _f in _L24.get("upstream_only", []):
         errors.append(f"S24 файл есть в апстриме, а у нас нет: {_f}")
     # Лок обязан ХРАНИТЬ пофайловые хэши. Без них «modified/upstream_only» пусты по
@@ -389,6 +396,20 @@ else:
             continue
         if _p.stem not in _jr:
             errors.append(f"S12 {_p.stem}: нет записи в approvals.jsonl — приёмки нет")
+
+checks_seen.add('S27')
+# S27 — тип приёмки в журнале согласован с примечанием: если note говорит
+# «пакетом», applied обязан быть BATCH. Дефект M3: повторная приёмка engineering
+# и legal-playbook стояла как PAGE, хотя страницу никто не открывал.
+# Проверяется ДЕЙСТВУЮЩАЯ запись (последняя по документу): журнал append-only,
+# исторические строки перекрыты корректирующими и остаются как след. Дефект M3 был
+# именно в действующих: повторная приёмка engineering/legal-playbook числилась PAGE,
+# хотя страницу никто не открывал, а note говорил «пакетом».
+for _stem, _ap in (_jr.items() if "_jr" in globals() else []):
+    _nt = str(_ap.get("note", "")).lower()
+    if "пакет" in _nt and _ap.get("applied") != "BATCH":
+        errors.append(f"S27 {_stem}: действующая запись — note «пакетом», "
+                      f"а applied {_ap.get('applied')}")
 
 checks_seen.add('S13')
 # S13 — статус ACTIVE не держится на незаполненном плейсхолдере владельца.
@@ -574,12 +595,19 @@ for r in rows_of_tree():
           if not l.strip().startswith("статус:")]
     cur = _hl.sha256("\n".join(_l).encode()).hexdigest()[:16]
     fact = "ACTIVE" if cur == ap.get("body_sha256") else "DRAFT"
-    if fact == "DRAFT" and "DRAFT" not in cell:
-        errors.append(f"S19 README: {dom} — «{cell}», а тело изменено после приёмки "
-                      f"(факт DRAFT)")
-    elif fact == "ACTIVE" and "ACTIVE" not in cell:
-        errors.append(f"S19 README: {dom} — «{cell}», а приёмка действительна "
-                      f"(факт ACTIVE)")
+    kind = ap.get("applied", "?")
+    if fact == "DRAFT":
+        if "DRAFT" not in cell:
+            errors.append(f"S19 README: {dom} — «{cell}», а тело изменено после "
+                          f"приёмки (факт DRAFT)")
+    else:
+        if "ACTIVE" not in cell:
+            errors.append(f"S19 README: {dom} — «{cell}», а приёмка действительна "
+                          f"(факт ACTIVE)")
+        # тип приёмки тоже виден читателю: BATCH => «пакет»
+        elif kind == "BATCH" and "пакет" not in cell:
+            errors.append(f"S19 README: {dom} — «{cell}», а тип приёмки {kind} "
+                          f"(в колонке нет «пакет»)")
 
 # Счётчик проверок — из ФАКТА, а не хардкод: собираем коды, которые реально
 # срабатывали (checks_seen наполняется при каждой выполненной проверке).

@@ -1516,7 +1516,7 @@
   "operations/CONNECTORS.md": "20d50b6d90afca267201b55f131398efb6a995ed45b1cc45ab5a07642267dc83",
   "operations/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
   "operations/README.md": "1f3ac674cfa7d89057dad669c7fc2a23fd633d094e9a6e949f627cedebf622d9",
-  "operations/skills/capacity-plan/SKILL.md": "5dc0f970fda46fede0b5e6a2f8b090475c39e1d9c8b4708e8106ced378f49a9d",
+  "operations/skills/capacity-plan/SKILL.md": "3b8f1379471eae19e5be26c750681ad0c6054f4c8cdbf79c94309fcf46957ea8",
   "operations/skills/change-request/SKILL.md": "b1ee71cc1fecb22c7d27e2e00171f5d62fb54c405095b51098dacfea0447d8d7",
   "operations/skills/compliance-tracking/SKILL.md": "644d393abdfddc8c37f7a7804f601e7bbd476e95571e6dcb4d916e478ba8ebd5",
   "operations/skills/process-doc/SKILL.md": "fceeeddb363e813ba831f9f2de1adb4c7e45ad179366bbb9ea9e40377abe96a9",
@@ -1587,7 +1587,7 @@
   "partner-built/slack/commands/standup.md": "2d6db206f93631b85ec88f32df8367a80f61e3107829b1cebc706d2e9c22264b",
   "partner-built/slack/commands/summarize-channel.md": "1719cc1abd991bac0b72947d93486219ada38895fd0e858f3c8d0e834d46d816",
   "partner-built/slack/skills/slack-messaging/SKILL.md": "118ede41cbc4fa5c6be4593619b0d9f58a40d85cadfa295277c74c4b7acf1508",
-  "partner-built/slack/skills/slack-search/SKILL.md": "b9a849d4a9d7505e04369515c1ff128215b81bd88f7ed072e0a551c121ec733a",
+  "partner-built/slack/skills/slack-search/SKILL.md": "934d1c12a69d013890810a25da9f6c6a89c6b2dbd16f18a8862419e9f41e6879",
   "partner-built/zoom-plugin/.claude-plugin/plugin.json": "757950184075f44d13146aa5ef5bb175205ee058e89ce4d6e760a7b0074f14da",
   "partner-built/zoom-plugin/.mcp.json": "65b24c8b7809a159956c98235019b39b7c872b0dee273e911fc2ee052531c055",
   "partner-built/zoom-plugin/AGENTS.md": "3c6dd66d7a4b3df39af45640565cadea5a0889cdeedccc265b8a6238b8d2aecc",
@@ -2581,10 +2581,7 @@
   "small-business/skills/ticket-deflector/reference/examples/respond-refund-request.md": "5220ba50b03ab6f3b25075d71d33c7df7c4100872cf35d30b84b3f1169417f5b",
   "small-business/skills/ticket-deflector/reference/gotchas.md": "6194ad1d2ebea6633871ff062150259fc1f2bdfb3e8abe4a50dad99ac0d9d2c6"
  },
- "modified": [
-  "operations/skills/capacity-plan/SKILL.md",
-  "partner-built/slack/skills/slack-search/SKILL.md"
- ],
+ "modified": [],
  "locally_added": [
   "design/LICENSE",
   "engineering/LICENSE",

@@ -186,20 +186,30 @@ def acceptance():
     Возвращает: by_kind (PAGE/MANUAL/BATCH -> сколько), playbooks [(имя, вид)],
     missing (контракт без review-файла), total (всего принятых документов).
     """
-    import json as _json
     skip = {"REGISTRY", "READINESS", "STATUS"}
     bh = PROFILES / "body-hashes.json"
-    hashes = _json.loads(bh.read_text()) if bh.exists() else {}
+    hashes = json.loads(bh.read_text()) if bh.exists() else {}
     by_kind, playbooks, missing = {}, [], []
     for p in sorted(PROFILES.glob("*.md")):
         stem = p.stem
         if stem.startswith("_") or stem in skip or stem.endswith(".review"):
             continue
-        rev = PROFILES / f"{stem}.review.md"
+        # вид приёмки — из ЖУРНАЛА (последняя запись), не из review-файлов:
+        # review-файлы писал прежний генератор, они больше не якорь (дефект N1);
+        # после формальной приёмки (D6) все записи — BATCH.
         kind = None
-        if rev.exists():
-            m = re.search(r'applied:\s*(\w+)', rev.read_text(errors="replace"))
-            kind = m.group(1) if m else None
+        jr = PROFILES / "approvals.jsonl"
+        if jr.exists():
+            for line in jr.read_text(errors="replace").splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    e = json.loads(line)
+                except Exception:
+                    continue
+                if e.get("stem") == stem:
+                    kind = e.get("applied")
         if stem.endswith("-playbook"):
             playbooks.append((stem, kind))
             continue
@@ -212,6 +222,23 @@ def acceptance():
     total = sum(by_kind.values()) + len(playbooks)
     return dict(by_kind=by_kind, playbooks=playbooks, missing=missing,
                 total=total, contracts=sum(by_kind.values()))
+
+
+def plural(n, one, few, many):
+    """Русское склонение: plural(252, "навык", "навыка", "навыков").
+
+    Генераторы печатали «252 навыков» — грамматическая ошибка, которую никто
+    не ловил, потому что число было верным. Форма зависит от последних цифр.
+    """
+    n = abs(int(n)) % 100
+    if 11 <= n <= 19:
+        return many
+    n = n % 10
+    if n == 1:
+        return one
+    if 2 <= n <= 4:
+        return few
+    return many
 
 
 def own_skills():

@@ -89,10 +89,7 @@ After finding relevant messages:
 - Use `slack_read_channel` with `oldest`/`latest` timestamps to read surrounding messages for context.
 - Use `slack_read_user_profile` to identify who a user is when their ID appears in results.
 
-## Verified failure-mode procedures
-
-Each entry below is a verified fix/procedure for a real failure mode — apply it directly when the symptom appears (capture dates noted where present).
-
+## Common Pitfalls
 
 - **Boolean operators don't work.** `AND`, `OR`, `NOT` are not supported. Use spaces (implicit AND) and `-` for exclusion.
 - **Parentheses don't work.** Don't try to group search terms with `()`.

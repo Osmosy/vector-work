@@ -51,10 +51,7 @@ Analyze team capacity and plan resource allocation.
 | Manager | 60-70% | Management overhead, meetings, 1:1s |
 | On-call / Support | 50-60% | Interrupt-driven work is unpredictable |
 
-## Verified failure-mode procedures
-
-Each entry below is a verified fix/procedure for a real failure mode — apply it directly when the symptom appears (capture dates noted where present).
-
+## Common Pitfalls
 
 - Planning to 100% utilization (no buffer for surprises)
 - Ignoring meeting load and context-switching costs
