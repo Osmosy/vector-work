@@ -15,6 +15,9 @@ on:
 jobs:
   structure:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read        # коммиты и файлы
+      pull-requests: read   # S26 спрашивает у GitHub, связан ли коммит со смердженным PR
     steps:
       - uses: actions/checkout@v4
         with:
@@ -38,6 +41,8 @@ jobs:
         # шаг поймает главное: правку якоря приёмки мимо ревью.
         # Нормальные коммиты (не трогают approvals.jsonl) проходят свободно.
         if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           base="${{ github.event.before }}"
           head="${{ github.sha }}"
@@ -49,14 +54,24 @@ jobs:
             echo "журнал приёмки в этом push не менялся — ок"
             exit 0
           fi
-          # Журнал изменён: допускается ТОЛЬКО merge-коммит от PR (2+ родителей).
-          parents=$(git rev-list --parents -n1 "$head" | wc -w)
-          if [ "$parents" -ge 3 ]; then
-            echo "журнал изменён merge-коммитом от PR ($((parents-1)) родителя) — ок"
+          # Журнал изменён. Признак «правка пришла через PR» берём у GitHub: коммит
+          # связан с закрытым (смердженным) pull request. Подсчёт родителей здесь
+          # не годится — репозиторий умеет squash и rebase, у них у обоих один
+          # родитель, и легальный squash-мердж правки журнала ронял бы сборку.
+          # У прямого push такой связи нет: GitHub её не выдумывает.
+          linked=$(gh api "repos/${GITHUB_REPOSITORY}/commits/${head}/pulls" \
+                     --jq '[.[] | select(.merged_at != null)] | length' 2>/dev/null || echo "")
+          if [ -z "$linked" ]; then
+            echo "::error::не удалось проверить связь коммита с PR (нет доступа к API)"
+            echo "Проверка консервативна: непроверяемая правка журнала приёмки не принимается."
+            exit 1
+          fi
+          if [ "$linked" -gt 0 ]; then
+            echo "журнал изменён коммитом смердженного PR #$(gh api "repos/${GITHUB_REPOSITORY}/commits/${head}/pulls" --jq '[.[]|select(.merged_at!=null)][0].number') — ок"
             exit 0
           fi
-          echo "::error::profiles/approvals.jsonl изменён прямым push в master без PR"
-          echo "Журнал приёмки — якорь: его правка должна прийти через PR с ревью владельца."
+          echo "::error::profiles/approvals.jsonl изменён прямым push в master, мимо PR"
+          echo "Журнал приёмки — якорь: его правка должна прийти только через pull request."
           exit 1
 
       - name: Генераторы идемпотентны
