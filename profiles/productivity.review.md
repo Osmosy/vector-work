@@ -1,7 +1,7 @@
 <!-- human-gate:v1 target=productivity.md round=1 -->
 reviewer: Михаил (владелец, Osmosy)
 applied: BATCH
-body_sha256: 03f0454784aa2084
+body_sha256: 4e7a454a09c714cd
 
 ## APPROVE a1
 > memory-management

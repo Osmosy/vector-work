@@ -1,7 +1,7 @@
 <!-- human-gate:v1 target=human-resources.md round=1 -->
 reviewer: Михаил (владелец, Osmosy)
 applied: BATCH
-body_sha256: 12873f1008ee500f
+body_sha256: 55bc4a1661027ffa
 
 ## APPROVE a1
 > comp-analysis

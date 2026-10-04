@@ -6,11 +6,12 @@
 ## Числа
 
     доменов                18   (17 ролей организации + 1 витрина partner-built)
-    навыков Cowork        212
+    навыков Cowork        252
     своих навыков           3   autonomous-supergoal-patterns, github-repo-research, vector-push
     контрактов             17   по одному на домен (витрина partner-built контракта не имеет)
     плейбуков               1   legal-playbook — документ, не контракт роли
     отпечатков тел         18   profiles/body-hashes.json (17 контрактов + плейбук)
+    ревизия апстрима          8444efcd48f7 (2026-10-01) — upstream.lock.json
 
     типовых полей [Т]      242  типовой каркас, не решение владельца
                                 (192 в контрактах + 50 в плейбуке legal)
@@ -39,7 +40,7 @@
 
 ## Проверки (CI на каждый push)
 
-    23 проверки, коды S1–S21 (включая S7b, S11b)
+    25 проверок, коды S1–S23 (включая S7b, S11b)
       S1   каталог домена без SKILL.md
       S2   число навыков в контракте ≠ дерево
       S3   число в таблице ролей README ≠ дерево
@@ -62,8 +63,10 @@
       S19  колонка «Контракт» в README ≠ факт приёмки
       S20  числа метрик в STATUS.md ≠ факт (три величины раздельно)
       S21  проза REGISTRY.md о терминале/браузере ≠ таблица тулсетов
+      S22  бейдж синхронизации ≠ ревизия в upstream.lock.json
+      S23  контракт не называет закреплённую ревизию апстрима
 
-    мутаций в mutation_check.py: 27, каждая обязана дать ERROR — 27/27
+    мутаций в mutation_check.py: 29, каждая обязана дать ERROR — 29/29
     счётчик «проверок выполнено» берётся из факта, не хардкодится
 
 Дополнительно, отдельным заданием по расписанию (понедельник 06:00 UTC):
@@ -77,10 +80,10 @@
     scripts/build_contracts.py     контракты + body-hashes.json
     scripts/build_reviews.py       честные review-файлы (PAGE/MANUAL/BATCH)
     scripts/build_readiness.py     READINESS.md (ручной раздел между маркерами)
-    scripts/validate_structure.py  23 проверки
-    scripts/mutation_check.py      27 мутаций
+    scripts/validate_structure.py  25 проверок
+    scripts/mutation_check.py      29 мутаций
     scripts/check_reviews.py       сверка приёмки по отпечаткам (без внешнего гейта)
-    scripts/check_upstream.py      сверка состава с апстримом (--by-domain, --json)
+    scripts/check_upstream.py      сверка/пиннинг апстрима (--pin, --write-badge, --check)
     scripts/gate_status.py         сводка гейта (локально; без него деградирует)
 
 Пересборка после изменения состава или прав:
@@ -111,7 +114,7 @@ rate»), поэтому браузер не выдан ни одному дом�
 
 ## Публичные тексты приведены к словарю
 
-    README.md              18 каталогов = 17 ролей + витрина; 212 навыков; 3 своих навыка
+    README.md              18 каталогов = 17 ролей + витрина; 252 навыка (синхронизировано с апстримом @ 8444efcd48f7); 3 своих навыка
     agents/orchestrator.md честные типы приёмки; без внешнего пути claude-skills/
     agent-description.md   ссылается на AGENTS.md и docs/VOCABULARY.md
     AGENTS.md              правила для агентов (создан)

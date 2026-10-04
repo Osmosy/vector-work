@@ -5,7 +5,7 @@
     статус:      ACTIVE — прошёл human-gate 2026-10-04, ревьюер назван (см. <домен>.review.md)
     владелец:    Михаил (Osmosy)
     домен:       skills/cowork-roles/operations/ — 9 навыков (по дереву)
-    источник:    Anthropic Cowork (Apache-2.0)
+    источник:    Anthropic Cowork (Apache-2.0) @ 8444efcd48f7 (2026-10-01)
 
 ## 0. Состав домена (по дереву)
 

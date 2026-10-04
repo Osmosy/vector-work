@@ -1,7 +1,7 @@
 <!-- human-gate:v1 target=cowork-plugin-management.md round=1 -->
 reviewer: Михаил (владелец, Osmosy)
 applied: BATCH
-body_sha256: cc015f5ac7a0e90d
+body_sha256: 47c9b734f3ae1b71
 
 ## APPROVE a1
 > cowork-plugin-customizer

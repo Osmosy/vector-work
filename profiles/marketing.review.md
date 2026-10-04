@@ -1,7 +1,7 @@
 <!-- human-gate:v1 target=marketing.md round=1 -->
 reviewer: Михаил (владелец, Osmosy)
 applied: BATCH
-body_sha256: d2ee65e564b4379f
+body_sha256: 219e814c6561527b
 
 ## APPROVE a1
 > brand-review

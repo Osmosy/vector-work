@@ -24,7 +24,7 @@ agent-description, STATUS, REGISTRY) ссылаются сюда, а не на �
 ## Числа на срез 2026-10-04
 
     доменов              18   (17 ролей организации + 1 витрина)
-    навыков Cowork      212
+    навыков Cowork      252
     своих навыков         3   autonomous-supergoal-patterns, github-repo-research, vector-push
     контрактов           18   (17 доменов + плейбук legal)
     библиотеки claude-skills/ в этом репозитории НЕТ
@@ -32,7 +32,7 @@ agent-description, STATUS, REGISTRY) ссылаются сюда, а не на �
 Формулировка для всех публичных текстов:
 
 > 18 каталогов Cowork, из них 17 ролей организации и 1 витрина partner-built;
-> 212 навыков. Своих навыков экосистемы — 3. Библиотеки `claude-skills/`
+> 252 навыков. Своих навыков экосистемы — 3. Библиотеки `claude-skills/`
 > в репозитории нет.
 
 ## Права (least privilege)

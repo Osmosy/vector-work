@@ -7,13 +7,15 @@
 [![Architecture: live](https://img.shields.io/badge/Architecture-live_diagram-4f8ff7.svg)](https://osmosy.github.io/vector-work/docs/vector-work.architecture.html)
 
 **Виртуальные сотрудники на базе Hermes Agent — 18 каталогов Cowork: 17 ролей
-организации и 1 витрина partner-built; 212 навыков**
+организации и 1 витрина partner-built; 252 навыков**
 
 [![Hermes Agent](https://img.shields.io/badge/Hermes-Agent-blue.svg)](https://github.com/NousResearch/hermes-agent)
 [![Ecosystem: Vector](https://img.shields.io/badge/Ecosystem-Vector-blue.svg)](https://osmosy.github.io/)
 [![Domains: 18](https://img.shields.io/badge/Domains-18-green.svg)](#роли)
-[![Skills: 212](https://img.shields.io/badge/Skills-212-orange.svg)](https://github.com/anthropics/knowledge-work-plugins)
-[![Synced upstream: 2026-08-30](https://img.shields.io/badge/synced_upstream-2026__08__30-blueviolet.svg)](https://github.com/anthropics/knowledge-work-plugins/commits/main)
+[![Skills: 252](https://img.shields.io/badge/Skills-252-orange.svg)](https://github.com/anthropics/knowledge-work-plugins)
+<!-- gen:sync:start -->
+[![Synced upstream: 2026-10-01](https://img.shields.io/badge/synced_upstream-2026__10__01-blueviolet.svg)](https://github.com/anthropics/knowledge-work-plugins/commits/main)
+<!-- gen:sync:end -->
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 </div>
@@ -22,8 +24,8 @@
 
 Копия [Anthropic Knowledge Work Plugins](https://github.com/anthropics/knowledge-work-plugins)
 (23.7k★) для Hermes Agent. 18 каталогов: 17 ролей организации и витрина
-partner-built (71 навык). Всего 212 навыков; копия ролей взята из upstream main
-2026-08-30.
+partner-built (71 навык). Всего 252 навыков; копия ролей закреплена от
+`anthropics/knowledge-work-plugins` @ `2ed7b64390` (2026-08-29) — см. `upstream.lock.json`.
 Активируются по интенту — скажи «проверь NDA» и legal включится сам.
 
 Определения терминов и числа — [docs/VOCABULARY.md](docs/VOCABULARY.md).
@@ -34,14 +36,18 @@ partner-built (71 навык). Всего 212 навыков; копия рол�
 не ошибка сборки, а факт отставания копии; в CI проверка идёт **по расписанию** и
 открывает issue, а не красит push.
 
-Состояние на 2026-10-04 (последняя сверка): в апстриме 252 `SKILL.md`, в копии 212.
-16 из 18 каталогов совпадают; отстают два — `sales` (+27 в апстриме) и
-`small-business` (+13). Остальное обновится отдельной задачей: это осознанный
-выбор, а не рассинхронизация, о которой забыли.
+Состояние сверки и бейдж выводятся из `upstream.lock.json`:
+`python3 scripts/check_upstream.py --pin` фиксирует ревизию,
+`--write-badge` переписывает бейдж и абзац. Руками эти числа не правятся.
+
+<!-- gen:syncstate:start -->
+Состояние сверки на 2026-10-01: копия закреплена от `anthropics/knowledge-work-plugins` @ `8444efcd48f7`. На этой ревизии в апстриме 252 `SKILL.md`, в копии 252. Все каталоги совпадают по числу навыков.
+<!-- gen:syncstate:end -->
 
 | Дата | Что обновлено |
 |------|---------------|
-| 2026-08-30 | productivity — security-fix (escape file-derived content в dashboard, 06.08); sales — +Monday.com MCP (23.06); small-business — Google MCP удалён upstream (30.07). Полная копия ролей из upstream main |
+| 2026-10-01 | синхронизация sales (9 → 36) и small-business (31 → 44) с апстримом @ `8444efcd48f7`; 13 навыков small-business, удалённых апстримом в переделке «Claude for Small Business launch» (15.09), удалены и здесь; добавлен `shared/` |
+| 2026-08-29 | предыдущая ревизия копии: `2ed7b64390`. productivity — security-fix (escape file-derived content в dashboard, 06.08); sales — +Monday.com MCP (23.06); small-business — Google MCP удалён upstream (30.07). Полная копия ролей из upstream main |
 | 2026-06-20 | восстановление cowork-roles (32 skills) |
 | 2026-05-30 | init: 14 ролей |
 
@@ -67,13 +73,13 @@ partner-built (71 навык). Всего 212 навыков; копия рол�
 
 | Роль | Для каких задач | Навыков | Контракт |
 |------|----------------|---------|----------|
-| **small-business** | Инвойсы, учёт, зарплата, налоги, CRM | 31 | ACTIVE (пакет) |
+| **small-business** | Инвойсы, учёт, зарплата, налоги, CRM | 44 | ACTIVE (пакет) |
 | **data** | SQL-запросы, дашборды, мониторинг, ML | 10 | ACTIVE (пакет) |
 | **engineering** | Код-ревью, инциденты, архитектура, деплой | 10 | ACTIVE |
 | **legal** | Триаж NDA, проверка договоров, комплаенс, риски | 9 | ACTIVE |
 | **human-resources** | Онбординг, вакансии, собеседования, оценка | 9 | ACTIVE (пакет) |
 | **operations** | Процессы, вендоры, закупки, мощности | 9 | ACTIVE (пакет) |
-| **sales** | Пайплайн, звонки, прогноз, конкурентная разведка | 9 | ACTIVE (пакет) |
+| **sales** | Пайплайн, звонки, прогноз, конкурентная разведка | 36 | ACTIVE (пакет) |
 | **finance** | Проводки, аудит, категоризация, отчётность | 8 | ACTIVE (пакет) |
 | **marketing** | Контент, кампании, SEO, аналитика | 8 | ACTIVE (пакет) |
 | **product-management** | PRD, роадмап, user stories, приоритизация | 8 | ACTIVE (пакет) |
@@ -110,8 +116,8 @@ partner-built (71 навык). Всего 212 навыков; копия рол�
 
 Что лежит **в этом репозитории** (числа по дереву):
 
-    cowork-roles/                18 каталогов, 212 навыков
-      из них роли организации     17 каталогов, 141 навык
+    cowork-roles/                18 каталогов, 252 навыков
+      из них роли организации     17 каталогов, 181 навык
       витрина partner-built        1 каталог,   71 навык
     skills/ (свои)                3 навыка
 
@@ -144,7 +150,7 @@ cp -r skills/cowork-roles ~/.hermes/skills/
 
 ## Структура репозитория
 
-    skills/cowork-roles/   18 каталогов (17 ролей + витрина), 212 навыков
+    skills/cowork-roles/   18 каталогов (17 ролей + витрина), 252 навыков
     skills/                3 своих навыка: autonomous-supergoal-patterns,
                            github-repo-research, vector-push
     agents/                orchestrator.md — маршрутизация по интенту

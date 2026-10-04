@@ -1,7 +1,7 @@
 <!-- human-gate:v1 target=bio-research.md round=1 -->
 reviewer: Михаил (владелец, Osmosy)
 applied: BATCH
-body_sha256: f80593f2a171c65d
+body_sha256: 885fec50483ee9e7
 
 ## APPROVE a1
 > instrument-data-to-allotrope

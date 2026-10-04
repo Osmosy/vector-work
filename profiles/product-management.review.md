@@ -1,7 +1,7 @@
 <!-- human-gate:v1 target=product-management.md round=1 -->
 reviewer: Михаил (владелец, Osmosy)
 applied: BATCH
-body_sha256: da6805cf0939d8f0
+body_sha256: ecce6ec6c06df86a
 
 ## APPROVE a1
 > competitive-brief

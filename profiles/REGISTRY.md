@@ -1,7 +1,7 @@
 # Реестр доменов Vector Work
 
 Сгенерировано `scripts/build_registry.py` через `scripts/_tree.py` по дереву.
-Доменов: **18** (17 ролей организации + 1 витрина) · навыков: **212** · своих навыков экосистемы: **3**
+Доменов: **18** (17 ролей организации + 1 витрина) · навыков: **252** · своих навыков экосистемы: **3**
 
 ## Состав доменов
 
@@ -23,8 +23,8 @@
 | pdf-viewer | роль | 1 | 1 | 0 | 0 |
 | product-management | роль | 8 | 16 | 11 | 0 |
 | productivity | роль | 4 | 9 | 8 | 0 |
-| sales | роль | 9 | 14 | 10 | 0 |
-| small-business | роль | 31 | 11 | 0 | 0 |
+| sales | роль | 36 | 23 | 10 | 0 |
+| small-business | роль | 44 | 35 | 0 | 0 |
 
 ## Тулсеты по домену (least privilege)
 
@@ -48,8 +48,8 @@
 | pdf-viewer | `file`, `skills`, `memory`, `connections` | коннекторы (0 кат., 1 MCP) |
 | product-management | `file`, `skills`, `memory`, `connections` | коннекторы (11 кат., 16 MCP) |
 | productivity | `file`, `skills`, `memory`, `connections` | коннекторы (8 кат., 9 MCP) |
-| sales | `file`, `skills`, `memory`, `connections` | коннекторы (10 кат., 14 MCP) |
-| small-business | `file`, `skills`, `memory`, `connections` | коннекторы (0 кат., 11 MCP) |
+| sales | `file`, `skills`, `memory`, `connections` | коннекторы (10 кат., 23 MCP) |
+| small-business | `file`, `skills`, `memory`, `connections` | коннекторы (0 кат., 35 MCP) |
 
 ## Права: безусловный запрет и «по требованию»
 

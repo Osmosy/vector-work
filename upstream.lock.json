@@ -1,0 +1,30 @@
+{
+ "repo": "anthropics/knowledge-work-plugins",
+ "branch": "main",
+ "sha": "8444efcd48f7012f09797778a36a33e73d0861f4",
+ "date": "2026-10-01T21:59:31Z",
+ "skill_md": 252,
+ "by_domain": {
+  "bio-research": 6,
+  "cowork-plugin-management": 2,
+  "customer-support": 5,
+  "data": 10,
+  "design": 7,
+  "engineering": 10,
+  "enterprise-search": 5,
+  "finance": 8,
+  "human-resources": 9,
+  "legal": 9,
+  "marketing": 8,
+  "operations": 9,
+  "partner-built": 71,
+  "pdf-viewer": 1,
+  "product-management": 8,
+  "productivity": 4,
+  "sales": 36,
+  "small-business": 44
+ },
+ "local_skill_md": 252,
+ "matched_count": 18,
+ "stale": {}
+}

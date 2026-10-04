@@ -263,6 +263,43 @@ for _lbl, _real in (("Терминал получает только:", _real_te
         errors.append(f"S21 REGISTRY.md «{_lbl}» названы {_named}, "
                       f"а тулсет выдан {_real}")
 
+checks_seen.add('S22')
+# S22 — бейдж синхронизации в README называет ревизию из upstream.lock.json.
+# Бейдж с датой, которой нет в локе, — то же враньё, что бейдж без сверки.
+_lock = ROOT / "upstream.lock.json"
+_rd = (ROOT / "README.md").read_text(errors="replace")
+if not _lock.exists():
+    errors.append("S22 upstream.lock.json отсутствует — ревизия апстрима не закреплена")
+else:
+    _L = json.loads(_lock.read_text())
+    _want_date = _L["date"][:10]
+    _m = re.search(r'gen:sync:start.*?Synced upstream:\s*([0-9-]{10})', _rd, re.S)
+    if not _m:
+        errors.append("S22 README: нет бейджа синхронизации между gen:sync")
+    elif _m.group(1) != _want_date:
+        errors.append(f"S22 README бейдж {_m.group(1)} ≠ лок {_want_date}")
+    # абзац состояния должен называть тот же усечённый sha
+    _m2 = re.search(r'gen:syncstate:start.*?`([0-9a-f]{12})`', _rd, re.S)
+    if not _m2:
+        errors.append("S22 README: абзац состояния не называет ревизию")
+    elif _m2.group(1) != _L["sha"][:12]:
+        errors.append(f"S22 README ревизия {_m2.group(1)} ≠ лок {_L['sha'][:12]}")
+
+checks_seen.add('S23')
+# S23 — контракты называют закреплённую ревизию апстрима в строке «источник».
+# Иначе «откуда это правило» не восстановить при разборе.
+if _lock.exists():
+    _sha12 = json.loads(_lock.read_text())["sha"][:12]
+    for _c in sorted(PR.glob("*.md")):
+        if (_c.stem.startswith("_") or _c.stem in NOT_CONTRACT
+                or _c.stem.endswith(".review") or _c.stem.endswith("-playbook")):
+            continue
+        _src = re.search(r'^\s*источник:\s*(.+)$', _c.read_text(errors="replace"), re.M)
+        if not _src:
+            errors.append(f"S23 {_c.name}: нет строки «источник»")
+        elif "Anthropic Cowork" in _src.group(1) and _sha12 not in _src.group(1):
+            errors.append(f"S23 {_c.name}: источник без закреплённой ревизии {_sha12}")
+
 checks_seen.add('S12')
 # S12 — приёмка подкреплена отпечатком тела. Правка тела без нового ревью — ошибка.
 import hashlib as _hl

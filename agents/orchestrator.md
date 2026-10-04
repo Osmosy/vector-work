@@ -22,15 +22,15 @@
 даже если инструмент доступен. Никакая роль не имеет `delegate_task`,
 `cronjob_manage`, `computer_use`; терминал и браузер — только если контракт их назвал.
 
-## Роли (18 доменов, 212 навыков)
+## Роли (18 доменов, 252 навыков)
 
 Полный состав и тулсеты — `profiles/REGISTRY.md`. Контракты — `profiles/<домен>.md`.
 
-**Бизнес:** productivity (4), small-business (31)
+**Бизнес:** productivity (4), small-business (44)
 **Продукт и разработка:** product-management (8), engineering (10), design (7)
 **Данные:** data (10), enterprise-search (5)
 **Корпоративные функции:** legal (9), finance (8), human-resources (9), operations (9)
-**Коммуникации:** sales (9), marketing (8), customer-support (5)
+**Коммуникации:** sales (36), marketing (8), customer-support (5)
 **Специализированные:** bio-research (6), pdf-viewer (1),
 cowork-plugin-management (2) — мета-роль, создаёт другие роли
 

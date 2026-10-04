@@ -77,7 +77,7 @@ def build(dom, r, descs, keep_status=None):
     A(keep_status or "    статус:      DRAFT — каркас, не прошёл human-gate")
     A(f"    владелец:    {OWNER_DEFAULT}")
     A(f"    домен:       skills/cowork-roles/{dom}/ — {r['skills']} навыков (по дереву)")
-    A( "    источник:    Anthropic Cowork (Apache-2.0)")
+    A(f"    источник:    Anthropic Cowork (Apache-2.0) @ {upstream_line()}")
     A("")
     A("## 0. Состав домена (по дереву)\n")
     for n in r["skill_names"]:
@@ -247,6 +247,20 @@ def sync_orchestrator():
               f"{len(a['playbooks'])} плейбук)")
     else:
         print("  orchestrator: блок приёмки уже актуален")
+
+
+def upstream_line():
+    """Ревизия апстрима, из которой взята копия ролей — для строки «источник».
+
+    Дата синхронизации и коммит апстрима — разные вещи. Здесь именно коммит:
+    контракт должен называть, ИЗ ЧЕГО взяты навыки домена, иначе при разборе
+    «откуда это правило» не восстановить, какая версия апстрима имелась в виду.
+    """
+    lock = T.ROOT / "upstream.lock.json"
+    if not lock.exists():
+        return "ревизия не закреплена (upstream.lock.json отсутствует)"
+    d = json.loads(lock.read_text())
+    return f"{d['sha'][:12]} ({d['date'][:10]})"
 
 
 def metrics(text):

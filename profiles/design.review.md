@@ -1,7 +1,7 @@
 <!-- human-gate:v1 target=design.md round=1 -->
 reviewer: Михаил (владелец, Osmosy)
 applied: BATCH
-body_sha256: 9be448b214027fff
+body_sha256: 812af684637fddb9
 
 ## APPROVE a1
 > accessibility-review

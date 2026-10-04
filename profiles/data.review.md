@@ -1,7 +1,7 @@
 <!-- human-gate:v1 target=data.md round=1 -->
 reviewer: Михаил (владелец, Osmosy)
 applied: BATCH
-body_sha256: cae52f975d2a47f9
+body_sha256: a2222ae83b5251c1
 
 ## APPROVE a1
 > analyze

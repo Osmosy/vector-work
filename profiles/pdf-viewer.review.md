@@ -1,7 +1,7 @@
 <!-- human-gate:v1 target=pdf-viewer.md round=1 -->
 reviewer: Михаил (владелец, Osmosy)
 applied: BATCH
-body_sha256: e090e949e41c8a93
+body_sha256: b46f54bf5da46c29
 
 ## APPROVE a1
 > view-pdf

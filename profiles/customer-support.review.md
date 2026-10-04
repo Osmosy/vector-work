@@ -1,7 +1,7 @@
 <!-- human-gate:v1 target=customer-support.md round=1 -->
 reviewer: Михаил (владелец, Osmosy)
 applied: BATCH
-body_sha256: 3015ce4de4528073
+body_sha256: 8b3f721e59c3e5c6
 
 ## APPROVE a1
 > customer-escalation

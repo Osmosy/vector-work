@@ -31,8 +31,8 @@
 | pdf-viewer | 1 | 1 | 0 | 0 | connections |
 | product-management | 8 | 16 | 11 | 0 | connections |
 | productivity | 4 | 9 | 8 | 0 | connections |
-| sales | 9 | 14 | 10 | 0 | connections |
-| small-business | 31 | 11 | 0 | 0 | connections |
+| sales | 36 | 23 | 10 | 0 | connections |
+| small-business | 44 | 35 | 0 | 0 | connections |
 
 ## Зависимость от внешних систем
 
@@ -48,12 +48,12 @@
 ## Распределение по числу навыков
 
      71  partner-built
-     31  small-business
+     44  small-business
+     36  sales
      10  data
      10  engineering
       9  human-resources
-      9  legal
-        ...  всего 212 навыков в 18 каталогах
+        ...  всего 252 навыков в 18 каталогах
 
 <!-- gen:keep-begin -->
 ## Порядок, в котором имеет смысл оживлять (ручной раздел)
