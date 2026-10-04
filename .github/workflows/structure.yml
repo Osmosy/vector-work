@@ -52,3 +52,15 @@ jobs:
 
       - name: Мутационная проверка самого валидатора
         run: python3 scripts/mutation_check.py
+
+      - name: Скрипты не зависят от домашнего каталога
+        # Класс дефекта: путь собирался от $HOME, локально совпадал, на раннере — нет.
+        # Прогон на копии под другим HOME ловит это до пуша.
+        run: |
+          rm -rf /tmp/ci-home && mkdir -p /tmp/ci-home
+          tar -cf - --exclude=.git . | (cd /tmp/ci-home && tar -xf -)
+          cd /tmp/ci-home
+          HOME=/tmp/ci-home-fake python3 scripts/build_registry.py >/dev/null
+          HOME=/tmp/ci-home-fake python3 scripts/build_contracts.py >/dev/null
+          HOME=/tmp/ci-home-fake python3 scripts/validate_structure.py
+          echo "скрипты работают при чужом HOME"

@@ -15,7 +15,7 @@ legal — доведён вручную, PROTECTED. partner-built — витри
 """
 import re, json, pathlib
 
-ROOT = pathlib.Path.home() / "projects" / "vector-work"
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 CR = ROOT / "skills" / "cowork-roles"
 OUT = ROOT / "profiles"
 PROTECTED = {"legal"}

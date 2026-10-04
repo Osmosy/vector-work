@@ -6,7 +6,7 @@
 """
 import os, re, json, pathlib, collections
 
-ROOT = pathlib.Path.home() / "projects" / "vector-work"
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 CR = ROOT / "skills" / "cowork-roles"
 OUT = ROOT / "profiles"
 
