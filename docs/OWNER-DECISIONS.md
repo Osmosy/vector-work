@@ -127,17 +127,26 @@ failure-mode procedures` + «apply it directly». Сначала агент ре
 
 **Статус:** решено и включено 2026-10-04 — владелец: «делай все»
 
-Оказалось, что у токена есть права `admin`, поэтому защита ветки включена агентом
-через API (веб-интерфейс не потребовался). Проверено запросом: `require_code_owner_reviews=true`,
-`required_approving_review_count=1`, `allow_force_pushes=false`, `allow_deletions=false`,
-обязательный статус-чек `structure`.
+Защита `master` включена и **проверена попыткой прямого push** (отклонён:
+«Changes must be made through a pull request»):
 
-**Что нужно:** включить в настройках ветки GitHub обязательное ревью code owner
-для `profiles/approvals.jsonl` и `profiles/*.review.md`. Файл
-`.github/CODEOWNERS` заведён агентом; сама защита ветки — только через веб-интерфейс
-владельца (у агента нет прав на branch protection).
+    required pull request reviews   1, ревью code owner (CODEOWNERS)
+    enforce_admins                  true  ← распространяется и на владельца/токен
+    required status check           structure
+    allow_force_pushes              false
+    allow_deletions                 false
+    required_linear_history         true
 
-**Ответ владельца:** — см. статус выше
+**Токен агента перевыпущен без `Administration`** (fine-grained, `vector-work-agent`,
+срок до 2027-01-02): снять защиту ветки, обойти required review или перезаписать
+`approvals.jsonl` через API он больше не может. Права: Contents/Pull requests/Issues —
+write, Actions/Metadata — read.
+
+Второй рубеж — CI-шаг **S26**: прямой push в `master`, меняющий `approvals.jsonl`,
+валит сборку; допускается только merge-коммит от PR.
+
+**Ответ владельца:** принято 2026-10-04
+
 
 ---
 
