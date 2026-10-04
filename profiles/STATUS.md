@@ -54,9 +54,14 @@
       S15  путь в публичном тексте не существует
       S16  число своих навыков ≠ дерево
       S17  у домена (или витрины) нет LICENSE
+      S18  числа схемы ≠ дерево или домен пропал со схемы
 
-    мутаций в mutation_check.py: 20, каждая обязана дать ERROR — 20/20
+    мутаций в mutation_check.py: 23, каждая обязана дать ERROR — 23/23
     счётчик «проверок выполнено» берётся из факта, не хардкодится
+
+Дополнительно, отдельным заданием по расписанию (понедельник 06:00 UTC):
+`scripts/check_upstream.py` сверяет состав с апстримом и открывает issue при
+отставании. Это **не** красит push: апстрим живой, копия отстаёт по своей воле.
 
 ## Генераторы
 
@@ -65,9 +70,10 @@
     scripts/build_contracts.py     контракты + body-hashes.json
     scripts/build_reviews.py       честные review-файлы (PAGE/MANUAL/BATCH)
     scripts/build_readiness.py     READINESS.md (ручной раздел между маркерами)
-    scripts/validate_structure.py  18 проверок
-    scripts/mutation_check.py      20 мутаций
+    scripts/validate_structure.py  19 проверок
+    scripts/mutation_check.py      23 мутации
     scripts/check_reviews.py       сверка приёмки по отпечаткам (без внешнего гейта)
+    scripts/check_upstream.py      сверка состава с апстримом (--by-domain, --json)
     scripts/gate_status.py         сводка гейта (локально; без него деградирует)
 
 Пересборка после изменения состава или прав:

@@ -13,7 +13,7 @@
 [![Ecosystem: Vector](https://img.shields.io/badge/Ecosystem-Vector-blue.svg)](https://osmosy.github.io/)
 [![Domains: 18](https://img.shields.io/badge/Domains-18-green.svg)](#роли)
 [![Skills: 212](https://img.shields.io/badge/Skills-212-orange.svg)](https://github.com/anthropics/knowledge-work-plugins)
-[![Sync: 2026-08-30](https://img.shields.io/badge/Sync-2026__08__30-blueviolet.svg)](https://github.com/anthropics/knowledge-work-plugins/commits/main)
+[![Synced upstream: 2026-08-30](https://img.shields.io/badge/synced_upstream-2026__08__30-blueviolet.svg)](https://github.com/anthropics/knowledge-work-plugins/commits/main)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 </div>
@@ -22,12 +22,22 @@
 
 Копия [Anthropic Knowledge Work Plugins](https://github.com/anthropics/knowledge-work-plugins)
 (23.7k★) для Hermes Agent. 18 каталогов: 17 ролей организации и витрина
-partner-built (71 навык). Всего 212 навыков, синхронизировано с upstream 2026-08-30.
+partner-built (71 навык). Всего 212 навыков; копия ролей взята из upstream main
+2026-08-30.
 Активируются по интенту — скажи «проверь NDA» и legal включится сам.
 
 Определения терминов и числа — [docs/VOCABULARY.md](docs/VOCABULARY.md).
 
 ### Синхронизация с upstream
+
+Состав сверяется с апстримом: `python3 scripts/check_upstream.py`. Расхождение —
+не ошибка сборки, а факт отставания копии; в CI проверка идёт **по расписанию** и
+открывает issue, а не красит push.
+
+Состояние на 2026-10-04 (последняя сверка): в апстриме 252 `SKILL.md`, в копии 212.
+16 из 18 каталогов совпадают; отстают два — `sales` (+27 в апстриме) и
+`small-business` (+13). Остальное обновится отдельной задачей: это осознанный
+выбор, а не рассинхронизация, о которой забыли.
 
 | Дата | Что обновлено |
 |------|---------------|

@@ -313,8 +313,12 @@ for rel in ["docs/vector-work.architecture.json", "docs/vector-work.architecture
     m = re.search(r'(\d+)\s+доменов', s)
     if m and int(m.group(1)) != _tot["domains"]:
         errors.append(f"S18 {rel}: «{m.group(0)}», в дереве {_tot['domains']} каталогов")
-    if rel.endswith(".json") and '"research"' in s:
-        errors.append(f"S18 {rel}: домен research, которого нет в дереве")
+    # каждый домен дерева должен упоминаться в схеме (витрины — тоже)
+    for dom in sorted(tree_domains()):
+        # сокращения схемы (PM/HR) считаются упоминанием
+        aliases = {"product-management": "PM", "human-resources": "HR"}
+        if dom not in s and aliases.get(dom, "\x00") not in s:
+            errors.append(f"S18 {rel}: домен {dom} не показан на схеме")
 
 # Счётчик проверок — из ФАКТА, а не хардкод: собираем коды, которые реально
 # срабатывали (checks_seen наполняется при каждой выполненной проверке).

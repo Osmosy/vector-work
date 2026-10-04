@@ -8,6 +8,9 @@ on:
     branches: [main, master]
   pull_request:
   workflow_dispatch:
+  # Сверка с апстримом — по расписанию, отдельным заданием (job upstream).
+  schedule:
+    - cron: "0 6 * * 1"     # понедельник 06:00 UTC
 
 jobs:
   structure:
@@ -70,3 +73,37 @@ jobs:
           HOME=/tmp/ci-home-fake python3 scripts/build_contracts.py >/dev/null
           HOME=/tmp/ci-home-fake python3 scripts/validate_structure.py
           echo "скрипты работают при чужом HOME"
+
+  # Сверка с апстримом — ОТДЕЛЬНОЕ задание по расписанию. Расхождение с живым
+  # апстримом не ошибка сборки: оно открывает issue, а не красит push.
+  upstream:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Сверить состав с апстримом
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 scripts/check_upstream.py --by-domain | tee /tmp/upstream.txt
+          delta=$(python3 scripts/check_upstream.py --json | python3 -c "import sys,json; print(json.load(sys.stdin)['delta'])")
+          echo "delta=$delta" >> "$GITHUB_OUTPUT"
+      - name: Открыть issue при отставании копии
+        if: steps.check.outputs.delta != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          title="Копия ролей отстала от апстрима (delta=${{ steps.check.outputs.delta }})"
+          if gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "$title in:title" | grep -q .; then
+            echo "issue уже открыт — не дублирую"
+            exit 0
+          fi
+          { echo 'Автоматическая сверка `scripts/check_upstream.py` нашла расхождение с апстримом.'; echo; echo '```'; cat /tmp/upstream.txt; echo '```'; echo; echo 'Это не ошибка сборки: копия отстаёт осознанно. Обновить дерево, пересобрать контракты и обновить бейдж `synced_upstream` в README.'; } > /tmp/body.md
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body-file /tmp/body.md

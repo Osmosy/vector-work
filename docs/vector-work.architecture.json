@@ -65,7 +65,7 @@
       "id": "cowork",
       "type": "backend",
       "label": "Cowork-плагины",
-      "sublabel": "18 каталогов (17 ролей + витрина), 212 навыков",
+      "sublabel": "18 каталогов: 17 ролей + витрина partner-built; 212 навыков",
       "pos": [
         540,
         300
@@ -80,7 +80,7 @@
       "id": "biz",
       "type": "backend",
       "label": "Бизнес",
-      "sublabel": "productivity, small-business",
+      "sublabel": "productivity, small-business, sales, marketing, customer-support",
       "pos": [
         800,
         90
@@ -94,7 +94,7 @@
       "id": "product",
       "type": "backend",
       "label": "Продукт",
-      "sublabel": "PM, engineering, design",
+      "sublabel": "product-management, engineering, design",
       "pos": [
         800,
         200
@@ -108,7 +108,7 @@
       "id": "data",
       "type": "backend",
       "label": "Данные",
-      "sublabel": "data, enterprise-search",
+      "sublabel": "data, enterprise-search, pdf-viewer",
       "pos": [
         800,
         310
@@ -122,7 +122,7 @@
       "id": "people",
       "type": "backend",
       "label": "Люди и операции",
-      "sublabel": "HR, operations, legal, finance",
+      "sublabel": "human-resources, operations, legal, finance",
       "pos": [
         800,
         420
