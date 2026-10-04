@@ -17,6 +17,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Полная история нужна шагу S26: он сравнивает push с базой и считает
+          # родителей merge-коммита.
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -27,6 +31,33 @@ jobs:
 
       - name: Валидатор структуры
         run: python3 scripts/validate_structure.py
+
+      - name: S26 — журнал приёмки меняется только через PR
+        # Защитный рубеж (план M2, шаг 3). Токен без admin + защита ветки уже не
+        # пускают прямой push в master, но если защиту когда-нибудь ослабят, этот
+        # шаг поймает главное: правку якоря приёмки мимо ревью.
+        # Нормальные коммиты (не трогают approvals.jsonl) проходят свободно.
+        if: github.event_name == 'push'
+        run: |
+          base="${{ github.event.before }}"
+          head="${{ github.sha }}"
+          if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then
+            echo "первый push в ветку — сравнивать не с чем, пропускаем"
+            exit 0
+          fi
+          if git diff --quiet "$base" "$head" -- profiles/approvals.jsonl; then
+            echo "журнал приёмки в этом push не менялся — ок"
+            exit 0
+          fi
+          # Журнал изменён: допускается ТОЛЬКО merge-коммит от PR (2+ родителей).
+          parents=$(git rev-list --parents -n1 "$head" | wc -w)
+          if [ "$parents" -ge 3 ]; then
+            echo "журнал изменён merge-коммитом от PR ($((parents-1)) родителя) — ок"
+            exit 0
+          fi
+          echo "::error::profiles/approvals.jsonl изменён прямым push в master без PR"
+          echo "Журнал приёмки — якорь: его правка должна прийти через PR с ревью владельца."
+          exit 1
 
       - name: Генераторы идемпотентны
         # Шаг ловит и созданный, и удалённый файл: раньше сравнивались только те
