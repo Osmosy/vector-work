@@ -2,7 +2,7 @@
 
     роль:        pdf-viewer
     версия:      0.1
-    статус:      ACTIVE — прошёл human-gate 2026-10-04, ревьюер назван (см. <домен>.review.md)
+    статус:      DRAFT — изменён после приёмки (одобрено 2026-10-04, 847738e)
     владелец:    Михаил (Osmosy)
     домен:       skills/cowork-roles/pdf-viewer/ — 1 навыков (по дереву)
     источник:    Anthropic Cowork (Apache-2.0) @ 8444efcd48f7 (2026-10-01)

@@ -48,6 +48,9 @@ TYPICAL = {
 }
 
 OWNER_DEFAULT = "Михаил (Osmosy)"   # владелец репозитория; он же ревьюер в приёмке
+STATUS_PLACEHOLDER = "    статус:      <СТАТУС_ЗАПОЛНИТ_ГЕНЕРАТОР>"
+# Строка статуса исключается из отпечатка тела (см. body_hash), поэтому плейсхолдер
+# безопасен: хэш считается так же, как если бы статус уже стоял.
 
 
 def brief(text, n=2, limit=170):
@@ -65,8 +68,56 @@ def descriptions(d):
     return out
 
 
+def approved_hash(stem):
+    """Последний ОДОБРЕННЫЙ отпечаток тела из append-only журнала.
+
+    Журнал `profiles/approvals.jsonl` пишет только человек или внешний human-gate;
+    ни один скрипт сюда не пишет — именно поэтому он и есть якорь приёмки. Раньше
+    `build_contracts.py` пересчитывал `body-hashes.json` из ТЕКУЩИХ тел и тем самым
+    «одобрял» любую правку, а текст ошибки S12 прямым советом предлагал прогнать
+    генератор. Цепочка была замкнута сама на себя.
+    """
+    j = OUT / "approvals.jsonl"
+    if not j.exists():
+        return None
+    found = None
+    for line in j.read_text(errors="replace").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            e = json.loads(line)
+        except Exception:
+            continue
+        if e.get("stem") == stem:
+            found = e
+    return found
+
+
+def status_for(stem, current_text):
+    """Статус по ФАКТУ: совпадает ли текущее тело с последним одобренным.
+
+    Статус принадлежит гейту, а не генератору. Поэтому генератор не сохраняет
+    прежний статус слепо (тогда правка тела тихо остаётся «принятой») и не
+    выдаёт новый (тогда он сам себе гейт) — он выводит статус из сравнения с
+    журналом одобрений.
+    """
+    ap = approved_hash(stem)
+    if ap is None:
+        return "    статус:      DRAFT — приёмки в журнале нет"
+    if body_hash(current_text) == ap.get("body_sha256"):
+        return (f"    статус:      ACTIVE — тело совпадает с одобренным "
+                f"({ap.get('applied', '?')} {ap.get('date', '?')}, {ap.get('commit', '?')})")
+    return (f"    статус:      DRAFT — изменён после приёмки "
+            f"(одобрено {ap.get('date', '?')}, {ap.get('commit', '?')})")
+
+
 def build(dom, r, descs, keep_status=None):
-    """Контракт домена. Права — из общего сканера r."""
+    """Контракт домена. Права — из общего сканера r.
+
+    `keep_status` оставлен для совместимости, но больше НЕ используется: строка
+    статуса подставляется позже функцией `apply_status`, после сборки тела.
+    """
     ts = T.toolsets_need(r)
     extra = [t for t in ts if t not in T.BASE_TOOLSETS]
     L = []
@@ -74,7 +125,7 @@ def build(dom, r, descs, keep_status=None):
     A(f"# Контракт работника: {dom}\n")
     A(f"    роль:        {dom}")
     A( "    версия:      0.1")
-    A(keep_status or "    статус:      DRAFT — каркас, не прошёл human-gate")
+    A(STATUS_PLACEHOLDER)
     A(f"    владелец:    {OWNER_DEFAULT}")
     A(f"    домен:       skills/cowork-roles/{dom}/ — {r['skills']} навыков (по дереву)")
     A(f"    источник:    Anthropic Cowork (Apache-2.0) @ {upstream_line()}")
@@ -287,16 +338,18 @@ def body_hash(text):
 def main():
     rows = {r["domain"]: r for r in T.scan()}
     made = []
+    states = {}
     for dom, r in rows.items():
         if dom in PROTECTED or dom in SKIP:
             continue
         p = OUT / f"{dom}.md"
-        # статус принадлежит гейту, а не генератору — сохраняем при пересборке
-        keep = None
-        if p.exists():
-            keep = next((l for l in p.read_text(errors="replace").splitlines()
-                         if l.strip().startswith("статус:")), None)
-        p.write_text(build(dom, r, descriptions(CR / dom), keep))
+        # 1. собрать ТЕЛО с плейсхолдером статуса
+        body = build(dom, r, descriptions(CR / dom))
+        # 2. вывести статус из сравнения с журналом одобрений (не из прежнего текста!)
+        st = status_for(dom, body)
+        states[dom] = st
+        # 3. подставить статус вместо плейсхолдера и записать
+        p.write_text(body.replace(STATUS_PLACEHOLDER, st, 1))
         made.append(dom)
 
     # отпечаток тела — в отдельный файл, рядом с контрактами
@@ -307,13 +360,29 @@ def main():
         if p.stem.endswith(".review"):
             continue
         # плейбук тоже проходит приёмку — его тело тоже привязываем отпечатком
-        # (раньше он был исключён, поэтому review остался в легаси-формате)
         digests[p.stem] = body_hash(p.read_text(errors="replace"))
     json.dump(digests, open(OUT / "body-hashes.json", "w"), ensure_ascii=False, indent=1)
+
+    # статус плейбука — тем же правилом (gen-строка, тело без неё)
+    pb = OUT / "legal-playbook.md"
+    if pb.exists():
+        pt = pb.read_text(errors="replace")
+        m = re.search(r'^(\s*статус:.*)$', pt, re.M)
+        if m:
+            st = status_for("legal-playbook", pt)
+            if st.strip() != m.group(1).strip():
+                pb.write_text(pt.replace(m.group(1), st, 1))
+                states["legal-playbook"] = st
 
     sync_orchestrator()
 
     print(f"контрактов собрано: {len(made)}")
+    act = sum(1 for s in states.values() if "ACTIVE" in s)
+    drf = sum(1 for s in states.values() if "DRAFT" in s)
+    print(f"  статусы по факту (журнал approvals.jsonl): ACTIVE {act}, DRAFT {drf}")
+    for dom, s in states.items():
+        if "DRAFT" in s:
+            print(f"    DRAFT {dom}")
     tot = dict(typical=0, open_decisions=0, placeholders=0)
     for dom in made:
         m = metrics((OUT / f"{dom}.md").read_text())

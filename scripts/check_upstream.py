@@ -18,6 +18,7 @@ issue, а не красит push.
     python3 scripts/check_upstream.py [--by-domain|--json]
 Переменные: UPSTREAM=owner/repo, GH_TOKEN (лимит API 5000/ч вместо 60/ч)
 """
+import hashlib
 import json
 import os
 import pathlib
@@ -71,6 +72,50 @@ def upstream_meta(sha=None):
                 skill_md=sum(by_domain.values()), by_domain=by_domain)
 
 
+def local_files():
+    """sha256 КАЖДОГО файла копии — не только число навыков.
+
+    Раньше лок хранил только счётчики, поэтому «stale: {}» был ложным: у трёх
+    доменов отсутствовали .mcp.json и CONNECTORS.md, девять README устарели, два
+    SKILL.md были изменены — и ничего из этого лок не видел.
+    """
+    out = {}
+    for p in sorted(CR.rglob("*")):
+        if p.is_file() and ".git" not in p.parts:
+            out[str(p.relative_to(CR))] = hashlib.sha256(p.read_bytes()).hexdigest()
+    return out
+
+
+def upstream_files(sha):
+    """Пофайловые sha256 апстрима — из tarball, а не из API.
+
+    API git/trees отдаёт git-blob SHA, который НЕ равен sha256 содержимого,
+    поэтому сверять его с локальным sha256 бессмысленно. Скачиваем архив ревизии
+    и считаем sha256 так же, как локально.
+    """
+    import io
+    import tarfile
+    import urllib.request as _u
+    url = f"https://codeload.github.com/{UPSTREAM}/tar.gz/{sha}"
+    req = _u.Request(url, headers={"User-Agent": "vector-work-check"})
+    with _u.urlopen(req, timeout=180) as r:
+        raw = r.read()
+    known = set(local_by_role())          # каталоги-домены, которые есть локально
+    out = {}
+    with tarfile.open(fileobj=io.BytesIO(raw), mode="r:gz") as tf:
+        for m in tf.getmembers():
+            if not m.isfile():
+                continue
+            rel = m.name.split("/", 1)[-1]
+            if "/" not in rel or rel.split("/")[0] not in known:
+                continue
+            f = tf.extractfile(m)
+            if f is None:
+                continue
+            out[rel] = hashlib.sha256(f.read()).hexdigest()
+    return out
+
+
 def local_by_role():
     return {d.name: sum(1 for _ in d.rglob("SKILL.md"))
             for d in sorted(CR.iterdir()) if d.is_dir()}
@@ -90,6 +135,21 @@ def do_pin(sha=None):
     local = local_by_role()
     meta["local_skill_md"] = sum(local.values())
     meta["matched_count"] = sum(1 for k in local if meta["by_domain"].get(k) == local[k])
+    # пофайловые хэши: только те пути, что есть в апстриме — по ним видно «изменено»
+    try:
+        upf = upstream_files(meta["sha"])
+        lf = local_files()
+        pref = {d + "/": None for d in local}
+        meta["files"] = {path: h for path, h in {**upf}.items()
+                         if path.split("/")[0] in local}
+        meta["files_local"] = {p_: h for p_, h in lf.items()
+                               if p_.split("/")[0] in local}
+        meta["modified"] = sorted(p_ for p_, h in meta["files_local"].items()
+                                  if p_ in meta["files"] and h != meta["files"][p_])
+        meta["locally_added"] = sorted(p_ for p_ in meta["files_local"] if p_ not in meta["files"])
+        meta["upstream_only"] = sorted(p_ for p_ in meta["files"] if p_ not in meta["files_local"])
+    except Exception as e:
+        print(f"  пофайловые хэши не собраны: {type(e).__name__}: {e}")
     meta["stale"] = {k: {"local": local[k], "upstream": meta["by_domain"][k]}
                      for k in sorted(local)
                      if k in meta["by_domain"] and meta["by_domain"][k] != local[k]}

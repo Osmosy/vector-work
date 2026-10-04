@@ -76,14 +76,26 @@ MUTATIONS = [
      "finance (8), operations (9)",
      "orchestrator.md перестал описывать домен human-resources"),
     # --- новые: S12-S16 (план от Claude, T1/T4/T11/T12) ---
-    ("S12", "profiles/sales.md", "    версия:      0.1", "    версия:      9.9",
-     "правка тела контракта после приёмки (отпечаток разошёлся)"),
-    ("S13", "profiles/data.md", "    владелец:    Михаил (Osmosy)",
-     "    владелец:    <кто отвечает>",
+    ("S12", "profiles/sales.md",
+     "    статус:      DRAFT — изменён после приёмки (одобрено 2026-10-04, 847738e)",
+     "    статус:      ACTIVE — прошёл human-gate",
+     "статус ACTIVE при теле, изменившемся после приёмки (журнал не подтверждает)"),
+    # N1: генератор НЕ должен перевыпускать приёмку. Ломаем журнал: подменяем
+    # одобренный отпечаток на текущий (как делал прежний build_contracts.py) —
+    # S12 обязан поймать, что запись журнала не соответствует git-истории.
+    ("S12", "profiles/approvals.jsonl", '"commit": "847738e"', '"commit": ""',
+     "запись журнала без коммита приёмки"),
+    ("S13", "profiles/data.md",
+     "    статус:      DRAFT — изменён после приёмки (одобрено 2026-10-04, 847738e)",
+     "    статус:      ACTIVE — утверждено\n    владелец:    <кто отвечает>",
      "статус ACTIVE при незаполненном владельце"),
     ("S14", "agents/orchestrator.md", "## Роли (18 доменов, 252 навыков)",
      "## Роли: 14 ролей организации",
      "устаревшее «14 ролей» в прозе"),
+    ("S14", "AGENTS.md", "252 навыка. Роли описаны", "212 навыков. Роли описаны",
+     "устаревшее число навыков в AGENTS.md (N4)"),
+    ("S14", "docs/VOCABULARY.md", "контрактов           17", "контрактов           18",
+     "число контрактов в VOCABULARY разошлось с фактом (N4)"),
     ("S15", "README.md", "[docs/VOCABULARY.md](docs/VOCABULARY.md)",
      "[docs/VOCABULARY.md](docs/NOPE.md)\n\nСм. `docs/NOPE.md`.",
      "путь `docs/NOPE.md` не существует"),
@@ -98,11 +110,12 @@ MUTATIONS = [
      "число в html-схеме разошлось с деревом"),
     ("S18", "docs/vector-work.architecture.json", "Skills (252)", "Skills (212)",
      "число навыков в схеме разошлось с деревом"),
-    ("S19", "README.md", "| ACTIVE (пакет) |", "| — |",
-     "колонка «Контракт» разошлась с приёмкой"),
+    ("S19", "README.md", "| **sales** | Пайплайн, звонки, прогноз, конкурентная разведка | 36 | DRAFT |",
+     "| **sales** | Пайплайн, звонки, прогноз, конкурентная разведка | 36 | ACTIVE |",
+     "колонка «Контракт» в README разошлась с фактом приёмки"),
     ("S11b", "agents/orchestrator.md", "Контрактов работников: **17**",
      "Контрактов работников: **18**", "блок приёмки в оркестраторе разошёлся с фактом"),
-    ("S20", "profiles/STATUS.md", "плейсхолдеров <…>      115",
+    ("S20", "profiles/STATUS.md", "плейсхолдеров <…>       99",
      "плейсхолдеров <…>      128", "число плейсхолдеров в STATUS разошлось с фактом"),
     ("S21", "profiles/REGISTRY.md", "Терминал получает только: `bio-research`",
      "Терминал получает только: `operations`", "проза реестра разошлась с тулсетами"),
@@ -110,6 +123,10 @@ MUTATIONS = [
      "бейдж синхронизации разошёлся с локом"),
     ("S23", "profiles/data.md", "8444efcd48f7", "deadbeef0000",
      "контракт не называет закреплённую ревизию апстрима"),
+    ("S24", "skills/cowork-roles/MODIFICATIONS.md", "capacity-plan", "ИКС-ФАЙЛ",
+     "изменённый файл убран из MODIFICATIONS.md (N2)"),
+    ("S24", "upstream.lock.json", '"files": {', '"files_hidden": {',
+     "лок перестал хранить пофайловые хэши (N2)"),
     # --- добираем непокрытые (план от Claude, T12) ---
     ("S6", "profiles/sales.md", "## 3. Разрешённые инструменты (least privilege)",
      "## 3. Инструменты вообще", "контракт без раздела «Разрешённые инструменты»"),
@@ -118,11 +135,44 @@ MUTATIONS = [
 # Отдельные случаи, требующие удаления файла
 DELETE_CASES = [
     ("S5", "profiles/human-resources.md", "отсутствующий контракт домена"),
-    ("S12", "profiles/sales.review.md", "приёмка без review-файла"),
+    ("S12", "profiles/approvals.jsonl", "журнал приёмки удалён"),
     ("S1", "skills/cowork-roles/pdf-viewer/skills/view-pdf/SKILL.md",
      "каталог домена без SKILL.md"),
     ("S17", "skills/cowork-roles/design/LICENSE", "домен без LICENSE"),
 ]
+
+
+SKRIPTS_CANNOT_WRITE = ["scripts/build_contracts.py", "scripts/build_reviews.py",
+                        "scripts/check_reviews.py", "scripts/build_registry.py",
+                        "scripts/build_readiness.py", "scripts/validate_structure.py"]
+
+
+def journal_not_written_by_scripts():
+    """Инвариант N1: НИ ОДИН скрипт не пишет в журнал приёмки.
+
+    Журнал append-only и принадлежит человеку/внешнему гейту. Если скрипт
+    научится в него писать, дефект N1 вернётся целиком (генератор снова сможет
+    «одобрять» за владельца), поэтому это проверяется статически по коду.
+
+    Точность важнее строгости окна: смотрим КОНКРЕТНЫЕ строки, где журнал идёт
+    в write/dump, а не «write_text рядом с упоминанием» — иначе чтение журнала
+    (approved_hash в build_contracts.py) ложно считается записью.
+    """
+    bad = []
+    # запись = journal-переменная в write_text / open(...,'w') / json.dump(...)
+    write_pat = re.compile(
+        r'(JOURNAL|journal|APPROVALS|approvals)\s*[^\n]{0,20}'
+        r'(write_text|\.open\([^)]*[\'"][wa]|json\.dump)')
+    # или наоборот: write_text(...) / dump(...) на пути, содержащем approvals.jsonl
+    direct_pat = re.compile(r'(write_text|json\.dump)\s*\([^\n]{0,120}approvals\.jsonl')
+    for rel in SKRIPTS_CANNOT_WRITE:
+        t = (ROOT / rel).read_text(errors="replace")
+        for i, line in enumerate(t.splitlines(), 1):
+            if "approvals" not in line:
+                continue
+            if write_pat.search(line) or direct_pat.search(line):
+                bad.append(f"{rel}:{i}: пишет в approvals.jsonl")
+    return bad
 
 
 def main():
@@ -160,6 +210,17 @@ def main():
         else:
             miss += 1
             print(f"  MISS {code}  {what}")
+
+    # инвариант N1: журнал приёмки не пишет ни один скрипт
+    jbad = journal_not_written_by_scripts()
+    n_checks = (n_checks or 0) + 1
+    if jbad:
+        for b in jbad:
+            print(f"  MISS N1  {b}")
+        miss += 1
+    else:
+        ok += 1
+        print("  OK   N1  ни один скрипт не пишет в журнал приёмки")
 
     shutil.rmtree(tmp, ignore_errors=True)
     total = ok + miss

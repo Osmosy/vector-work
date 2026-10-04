@@ -1,11 +1,21 @@
 #!/usr/bin/env python3
-"""Сверка приёмки по отпечаткам тел — без внешнего human-gate.
+"""Сверка приёмки с append-only журналом — без внешнего human-gate.
 
 В CI нет ~/.hermes, поэтому `gate_status.py` (он зовёт внешний human_gate.py)
-там не работает. Этот скрипт проверяет то, что лежит В РЕПОЗИТОРИИ:
-у каждого контракта есть review-файл с отпечатком, и отпечаток совпадает.
+там не работает. Этот скрипт сверяет то, что лежит В РЕПОЗИТОРИИ, с якорем —
+журналом `profiles/approvals.jsonl`.
 
-Код выхода 1, если приёмка расходится с содержимым.
+Переписан после дефекта N1 (внешний аудит 2026-10-04): раньше он сверял
+review-файлы с `body-hashes.json`, который генератор пересчитывал из ТЕКУЩИХ тел.
+Скрипт, генератор хэшей и файл хэшей составляли замкнутый круг — любая правка
+тела «подтверждалась» сама собой.
+
+Теперь якорь — журнал, куда пишет только человек (или внешний гейт), а скрипты
+не пишут вообще. Расхождение тела с журналом — это НЕ ошибка: контракт должен
+быть в DRAFT, и статус проверяется как согласованный с фактом.
+
+Код выхода 1, только если: журнала нет, запись неполная, либо строка статуса
+противоречит факту (одобрено, а стоит DRAFT — или наоборот).
 
 Запуск: python3 scripts/check_reviews.py
 """
@@ -18,7 +28,9 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import _tree as T
 
 OUT = T.PROFILES
+JOURNAL = OUT / "approvals.jsonl"
 APPLIED = {"PAGE", "MANUAL", "BATCH"}
+FIELDS = ("stem", "body_sha256", "applied", "reviewer", "date", "commit")
 
 
 def body_hash(text):
@@ -27,45 +39,58 @@ def body_hash(text):
 
 
 def main():
-    bh = OUT / "body-hashes.json"
-    if not bh.exists():
-        print("::error::profiles/body-hashes.json отсутствует — прогони build_contracts.py")
+    if not JOURNAL.exists():
+        print("::error::profiles/approvals.jsonl отсутствует — журнала приёмки нет")
         return 1
-    hashes = json.loads(bh.read_text())
+    jr = {}
     bad = 0
-    stats = {}
-    for stem, h in sorted(hashes.items()):
-        md = OUT / f"{stem}.md"
-        rv = OUT / f"{stem}.review.md"
-        if not rv.exists():
-            print(f"::error::{stem}: нет review-файла — приёмки нет")
+    for line in JOURNAL.read_text(errors="replace").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            e = json.loads(line)
+        except Exception:
+            print(f"::error::approvals.jsonl: нечитаемая строка: {line[:60]}")
             bad += 1
             continue
-        t = rv.read_text(errors="replace")
-        # отпечаток должен совпадать с файлом хэшей
-        if f"body_sha256: {h}" not in t:
-            print(f"::error::{stem}: отпечаток в review не совпадает ({h})")
+        miss = [f for f in FIELDS if f not in e]
+        if miss:
+            print(f"::error::approvals.jsonl {e.get('stem','?')}: нет полей {miss}")
             bad += 1
-            continue
-        # отпечаток должен совпадать с фактическим телом
-        if md.exists() and body_hash(md.read_text(errors="replace")) != h:
-            print(f"::error::{stem}: тело изменено после приёмки — нужно новое ревью")
+        if e.get("applied") not in APPLIED:
+            print(f"::error::{e.get('stem','?')}: неизвестный вид «{e.get('applied')}»")
             bad += 1
-            continue
-        kind = "?"
-        for line in t.splitlines():
-            if line.startswith("applied:"):
-                kind = line.split(":", 1)[1].strip()
-        if kind not in APPLIED:
-            print(f"::error::{stem}: неизвестный тип приёмки «{kind}»")
-            bad += 1
-            continue
-        stats[kind] = stats.get(kind, 0) + 1
+        jr[e.get("stem")] = e
 
-    print("приёмка по отпечаткам:")
+    stats = {}
+    active = draft = 0
+    for stem, ap in sorted(jr.items()):
+        md = OUT / f"{stem}.md"
+        if not md.exists():
+            print(f"::error::{stem}: запись в журнале, а файла нет")
+            bad += 1
+            continue
+        actual = body_hash(md.read_text(errors="replace"))
+        st_line = next((l for l in md.read_text(errors="replace").splitlines()
+                        if l.strip().startswith("статус:")), "")
+        if actual == ap["body_sha256"]:
+            active += 1
+            if "ACTIVE" not in st_line:
+                print(f"::error::{stem}: одобрено, а статус не ACTIVE")
+                bad += 1
+        else:
+            draft += 1
+            if "DRAFT" not in st_line:
+                print(f"::error::{stem}: тело изменено после приёмки, а статус не DRAFT")
+                bad += 1
+        stats[ap["applied"]] = stats.get(ap["applied"], 0) + 1
+
+    print("приёмка по журналу approvals.jsonl:")
     for k in sorted(stats):
         print(f"  {k:7} {stats[k]}")
-    print(f"контрактов сверено: {len(hashes)}, расхождений: {bad}")
+    print(f"документов в журнале: {len(jr)}, по факту: ACTIVE {active}, DRAFT {draft}")
+    print(f"расхождений: {bad}")
     return 1 if bad else 0
 
 

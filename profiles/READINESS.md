@@ -19,11 +19,11 @@
 | cowork-plugin-management | 2 | 0 | 8 | 0 | connections |
 | customer-support | 5 | 8 | 9 | 0 | connections |
 | data | 10 | 8 | 5 | 1 | connections |
-| design | 7 | 0 | 5 | 0 | connections |
+| design | 7 | 9 | 7 | 0 | connections |
 | engineering | 10 | 10 | 7 | 0 | connections |
 | enterprise-search | 5 | 7 | 21 | 0 | connections |
-| finance | 8 | 0 | 4 | 0 | connections |
-| human-resources | 9 | 0 | 6 | 0 | connections |
+| finance | 8 | 6 | 11 | 0 | connections |
+| human-resources | 9 | 5 | 8 | 0 | connections |
 | legal | 9 | 7 | 8 | 0 | connections |
 | marketing | 8 | 13 | 14 | 0 | connections |
 | operations | 9 | 6 | 8 | 0 | connections |

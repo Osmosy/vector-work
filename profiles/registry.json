@@ -169,9 +169,21 @@
    "user-research",
    "ux-copy"
   ],
-  "mcp": 0,
-  "mcp_names": [],
+  "mcp": 9,
+  "mcp_names": [
+   "asana",
+   "atlassian",
+   "figma",
+   "gmail",
+   "google calendar",
+   "intercom",
+   "linear",
+   "notion",
+   "slack"
+  ],
   "conns": [
+   "category",
+   "chat",
    "design tool",
    "knowledge base",
    "product analytics",
@@ -292,13 +304,27 @@
    "sox-testing",
    "variance-analysis"
   ],
-  "mcp": 0,
-  "mcp_names": [],
+  "mcp": 6,
+  "mcp_names": [
+   "bigquery",
+   "databricks",
+   "gmail",
+   "google calendar",
+   "slack",
+   "snowflake"
+  ],
   "conns": [
+   "analytics",
+   "category",
+   "chat",
+   "data warehouse",
    "data warehouse is connected",
    "data warehouse to pull",
    "data warehouse to pull financia",
-   "erp or"
+   "email",
+   "erp",
+   "erp or",
+   "office suite"
   ],
   "py": 0,
   "need_browser": false,
@@ -321,12 +347,20 @@
    "policy-lookup",
    "recruiting-pipeline"
   ],
-  "mcp": 0,
-  "mcp_names": [],
+  "mcp": 5,
+  "mcp_names": [
+   "atlassian",
+   "gmail",
+   "google calendar",
+   "notion",
+   "slack"
+  ],
   "conns": [
    "calendar",
+   "category",
    "chat",
    "compensation data",
+   "email",
    "knowledge base",
    "knowledge base for the relevant",
    "project tracker"

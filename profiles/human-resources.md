@@ -2,7 +2,7 @@
 
     роль:        human-resources
     версия:      0.1
-    статус:      ACTIVE — прошёл human-gate 2026-10-04, ревьюер назван (см. <домен>.review.md)
+    статус:      DRAFT — изменён после приёмки (одобрено 2026-10-04, 847738e)
     владелец:    Михаил (Osmosy)
     домен:       skills/cowork-roles/human-resources/ — 9 навыков (по дереву)
     источник:    Anthropic Cowork (Apache-2.0) @ 8444efcd48f7 (2026-10-01)
@@ -56,7 +56,7 @@
     file           read_file, write_file, patch, ...    чтение входа, запись заключения
     skills         skills_list, skill_view              загрузка навыков домена
     memory         memory                               факты о практике
-    connections    manage_connections                   0 MCP-серверов, 6 категорий коннекторов
+    connections    manage_connections                   5 MCP-серверов, 8 категорий коннекторов
 
 Запрещено конструктивно: `delegate_task`, `cronjob_manage`, `computer_use`, `browser_*`, `terminal`.
 
@@ -101,8 +101,8 @@
 ## 8. Зависимости и пробелы (по факту дерева)
 
     навыков               9
-    MCP-серверов          0 —
-    категорий коннекторов 6
+    MCP-серверов          5 (atlassian, gmail, google calendar, notion, slack…)
+    категорий коннекторов 8
     Python-скриптов       0
     тулсетов сверх базы   connections
 

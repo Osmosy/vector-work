@@ -300,42 +300,104 @@ if _lock.exists():
         elif "Anthropic Cowork" in _src.group(1) and _sha12 not in _src.group(1):
             errors.append(f"S23 {_c.name}: источник без закреплённой ревизии {_sha12}")
 
+checks_seen.add('S24')
+# S24 — каждое отличие от апстрима либо отсутствует, либо указано в MODIFICATIONS.md.
+# Дефект N2 (внешний аудит 2026-10-04): лок хранил только ЧИСЛО навыков, поэтому
+# «stale: {}» был ложным — у трёх доменов не было .mcp.json и CONNECTORS.md, девять
+# README устарели, два SKILL.md изменены, и ничего из этого не виделось. Apache-2.0
+# §4(b) требует отмечать изменённые файлы.
+_lock24 = ROOT / "upstream.lock.json"
+if _lock24.exists():
+    _L24 = json.loads(_lock24.read_text())
+    _mod_md = CR / "MODIFICATIONS.md"
+    _mod_txt = _mod_md.read_text(errors="replace") if _mod_md.exists() else ""
+    if not _mod_md.exists():
+        errors.append("S24 skills/cowork-roles/MODIFICATIONS.md отсутствует")
+    for _f in _L24.get("modified", []):
+        if _f not in _mod_txt:
+            errors.append(f"S24 изменённый файл не отмечен в MODIFICATIONS.md: {_f}")
+    for _f in _L24.get("upstream_only", []):
+        errors.append(f"S24 файл есть в апстриме, а у нас нет: {_f}")
+    # Лок обязан ХРАНИТЬ пофайловые хэши. Без них «modified/upstream_only» пусты по
+    # построению — и отличия снова невидимы (ровно дефект N2). Проверяем наличие
+    # ключей и их непустоту там, где они обязаны быть.
+    for _k in ("files", "files_local"):
+        if not _L24.get(_k):
+            errors.append(f"S24 upstream.lock.json без пофайловых хэшей «{_k}» — "
+                          f"отличия от апстрима не видны, прогони --pin")
+    if "modified" not in _L24 or "upstream_only" not in _L24:
+        errors.append("S24 upstream.lock.json: нет ключей modified/upstream_only")
+    for _f in _L24.get("locally_added", []):
+        if _f not in _mod_txt:
+            errors.append(f"S24 наше добавление не отмечено в MODIFICATIONS.md: {_f}")
+
 checks_seen.add('S12')
-# S12 — приёмка подкреплена отпечатком тела. Правка тела без нового ревью — ошибка.
+# S12 — статус выведен из ЖУРНАЛА одобрений, а не из генерируемого файла хэшей.
+# Дефект N1 (внешний аудит 2026-10-04): раньше S12 сверяла текущее тело с
+# `body-hashes.json`, который генератор пересчитывал из ТЕКУЩИХ тел, и текст ошибки
+# прямым советом предлагал прогнать генератор. Любая правка тела «одобрялась» двумя
+# командами. Теперь якорь — append-only журнал `profiles/approvals.jsonl`, который
+# не пишет ни один скрипт. Расхождение — НЕ ошибка CI (состояние честное: DRAFT),
+# но оно обязано быть отражено в строке статуса контракта.
 import hashlib as _hl
 import json as _json
-bh = OUT_HASHES = PR / "body-hashes.json"
-if not bh.exists():
-    errors.append("S12 profiles/body-hashes.json отсутствует — прогони build_contracts.py")
+JOURNAL = PR / "approvals.jsonl"
+_jr = {}
+if not JOURNAL.exists():
+    errors.append("S12 profiles/approvals.jsonl отсутствует — журнал приёмки не найден")
 else:
-    hashes = _json.loads(bh.read_text()) if bh.exists() else {}
-    for stem, h in hashes.items():
-        md = PR / f"{stem}.md"
-        rv = PR / f"{stem}.review.md"
-        if not rv.exists():
-            errors.append(f"S12 {stem}: статус без review-файла — приёмки нет")
+    for _line in JOURNAL.read_text(errors="replace").splitlines():
+        _line = _line.strip()
+        if not _line:
             continue
-        rt = rv.read_text(errors="replace")
-        m = re.search(r'body_sha256:\s*([0-9a-f]{8,64})', rt)
-        if not m:
-            errors.append(f"S12 {stem}.review.md: нет отпечатка тела (body_sha256)")
-        elif m.group(1) != h:
-            errors.append(f"S12 {stem}: тело изменено после приёмки "
-                          f"(review {m.group(1)}, сейчас {h}) — нужно новое ревью")
-        # отпечаток в файле хэшей должен совпадать с фактическим телом
-        if md.exists():
-            lines = [l for l in md.read_text(errors="replace").splitlines()
-                     if not l.strip().startswith("статус:")]
-            actual = _hl.sha256("\n".join(lines).encode()).hexdigest()[:16]
-            if actual != h:
-                errors.append(f"S12 {stem}: body-hashes.json устарел "
-                              f"({h} ≠ {actual}) — прогони build_contracts.py")
+        try:
+            _e = _json.loads(_line)
+        except Exception:
+            errors.append(f"S12 approvals.jsonl: нечитаемая строка: {_line[:60]}")
+            continue
+        for _f in ("stem", "body_sha256", "applied", "reviewer", "date", "commit"):
+            if _f not in _e:
+                errors.append(f"S12 approvals.jsonl: запись без поля «{_f}»")
+            elif not str(_e.get(_f)).strip():
+                errors.append(f"S12 approvals.jsonl ({_e.get('stem','?')}): "
+                              f"пустое поле «{_f}»")
+        _jr[_e.get("stem")] = _e          # побеждает последняя запись
+
+    for stem, ap in _jr.items():
+        md = PR / f"{stem}.md"
+        if not md.exists():
+            errors.append(f"S12 approvals.jsonl: запись для несуществующего {stem}.md")
+            continue
+        _lines = [l for l in md.read_text(errors="replace").splitlines()
+                  if not l.strip().startswith("статус:")]
+        actual = _hl.sha256("\n".join(_lines).encode()).hexdigest()[:16]
+        st_line = next((l for l in md.read_text(errors="replace").splitlines()
+                        if l.strip().startswith("статус:")), "")
+        if actual == ap.get("body_sha256"):
+            if "ACTIVE" not in st_line:
+                errors.append(f"S12 {stem}: тело совпадает с одобренным, "
+                              f"а статус не ACTIVE — прогони build_contracts.py")
+        else:
+            if "DRAFT" not in st_line:
+                errors.append(f"S12 {stem}: тело изменено после приёмки, "
+                              f"а статус не DRAFT (одобрено {ap.get('commit')})")
+
+    # каждый документ (кроме плейбука, у него gen-строка) должен иметь запись в журнале
+    for _p in sorted(PR.glob("*.md")):
+        if (_p.stem.startswith("_") or _p.stem in {"REGISTRY", "READINESS", "STATUS", "OWNER-DECISIONS"}
+                or _p.stem.endswith(".review") or _p.stem == "legal-playbook"):
+            continue
+        if _p.stem not in _jr:
+            errors.append(f"S12 {_p.stem}: нет записи в approvals.jsonl — приёмки нет")
 
 checks_seen.add('S13')
 # S13 — статус ACTIVE не держится на незаполненном плейсхолдере владельца.
 # Шапка контракта — блок метаданных с отступом, а НЕ первый абзац текста
 # (первый абзац — заголовок «# Контракт работника: X»).
-for stem in (hashes if bh.exists() else []):
+_bh = PR / "body-hashes.json"
+hashes = _json.loads(_bh.read_text()) if _bh.exists() else {}
+_PLACEHOLDERS = ("<кто отвечает>", "<владелец>", "<домен>", "<НАЗНАЧИТЬ>")
+for stem in (hashes if hashes else []):
     md = PR / f"{stem}.md"
     if not md.exists():
         continue
@@ -345,29 +407,77 @@ for stem in (hashes if bh.exists() else []):
             break
         head_lines.append(line)
     head = "\n".join(head_lines)
-    if "ACTIVE" in head and "<кто отвечает>" in head:
-        errors.append(f"S13 {stem}: статус ACTIVE при незаполненном владельце "
-                      f"«<кто отвечает>» — назначь владельца или понизь статус")
+    if "ACTIVE" in head:
+        for ph in _PLACEHOLDERS:
+            if ph in head:
+                errors.append(f"S13 {stem}: статус ACTIVE при незаполненном "
+                              f"плейсхолдере «{ph}» — заполни или понизь статус")
 
 checks_seen.add('S14')
 # S14 — в публичных текстах нет устаревших утверждений о СОСТАВЕ и чужого локального пути.
-# Историческая строка журнала синхронизации («init: 14 ролей») — не утверждение о
-# текущем составе, поэтому строки таблицы журнала из проверки исключены.
-PUBLIC = ["README.md", "agents/orchestrator.md", "agent-description.md"]
+# Обобщено по N4 (внешний аудит 2026-10-04): раньше ловилась ОДНА фраза «14 ролей»,
+# поэтому «212 навыков» в AGENTS.md и старая ревизия в README проходили зелёными.
+# Теперь сверяются все числа состава во всех *.md вне деревьев навыков.
+# Явный opt-out для исторических мест — маркер <!-- noqa:S14 --> в той же строке.
+PUBLIC = ["README.md", "AGENTS.md", "agent-description.md",
+          "agents/orchestrator.md", "docs/VOCABULARY.md"]
+_tot14 = T.totals()
+_sha14 = ""
+if (ROOT / "upstream.lock.json").exists():
+    _sha14 = json.loads((ROOT / "upstream.lock.json").read_text())["sha"][:12]
+_FACTS14 = {
+    "навык": _tot14["skills"], "домен": _tot14["domains"],
+    "каталог": _tot14["domains"], "рол": _tot14["roles"],
+    "контракт": _tot14["contracts"] if "contracts" in _tot14 else 17,
+}
 for rel in PUBLIC:
     p = ROOT / rel
     if not p.exists():
         continue
-    t = p.read_text(errors="replace")
-    for line in t.splitlines():
+    for i, line in enumerate(p.read_text(errors="replace").splitlines(), 1):
         if line.lstrip().startswith("|"):        # таблицы (журнал, роли) — не проза
             continue
+        if "noqa:S14" in line:                   # явное исключение
+            continue
         if re.search(r'\b14\s+(профессиональных\s+)?рол', line):
-            errors.append(f"S14 {rel}: устаревшее «14 ролей» в прозе — "
-                          f"ролей {T.totals()['roles']}")
-            break
-    if rel != "README.md" and "claude-skills/" in t:
-        errors.append(f"S14 {rel}: локальный путь `claude-skills/`, которого нет в дереве")
+            errors.append(f"S14 {rel}:{i}: устаревшее «14 ролей» — ролей {_tot14['roles']}")
+        for word, fact in _FACTS14.items():
+            # ОБА порядка: «252 навыка» и «контрактов 17» — в таблицах VOCABULARy
+            # слово идёт первым, и первый порядок такое просто не находил.
+            for m in re.finditer(rf'(\d+)\s+{word}(?:ов|а|ей|ь)?\b'
+                                 rf'|{word}(?:ов|а|ей|ь)?\s+(\d+)\b',
+                                 line, re.I):
+                val = int(m.group(1) or m.group(2))
+                if val == fact or val < 5:
+                    continue
+                # Подмножество — не расхождение, но только когда число относится
+                # к подмножеству: маркер должен идти ПЕРЕД числом («витрина — 71
+                # навык», «из них 181 навык»). Маркер ПОСЛЕ числа — не оправдание:
+                # так «252 навыка (17 ролей + витрина)» прошло бы при 212.
+                pre = line[max(0, m.start() - 90):m.start()]
+                # Маркер подмножества действует, только если он «тянется» к числу:
+                # между ним и числом нет ЗАКРЫТОЙ скобки/точки/запятой-конца.
+                # Так «partner-built (71 навык)» — подмножество, а «partner-built),
+                # 252 навыка» — итог всего дерева (маркер закрыт, к числу не относится).
+                if re.search(r'[).;]', pre[-25:]):
+                    pre = ""
+                SUBSET = ("витрин", "partner-built", "роли организации", "ролей организации",
+                          "своих", "claude-skills", "из них", "внешн", "подмножеств",
+                          "сверх базы", "у роли", "в контракте")
+                if any(w in pre for w in SUBSET):
+                    continue
+                errors.append(f"S14 {rel}:{i}: «{m.group(0)}» ≠ {fact} по дереву")
+        if _sha14 and re.search(r'`(?!' + _sha14 + r')[0-9a-f]{12}`', line) \
+                and re.search(r'(апстрим|upstream)', line, re.I):
+            errors.append(f"S14 {rel}:{i}: короткий sha рядом с «апстрим» ≠ {_sha14}")
+    # claude-skills/ — чужой локальный путь, если он подаётся как существующий.
+    # В VOCABULARY он прямо назван отсутствующим, это объяснение, а не ссылка.
+    if rel != "README.md":
+        _t = p.read_text(errors="replace")
+        if "claude-skills/" in _t and not re.search(
+                r'(нет в репозитории|не лежит|отсутствует|в этом репозитории нет|в репозитории нет)',
+                _t, re.S):
+            errors.append(f"S14 {rel}: локальный путь `claude-skills/`, которого нет в дереве")
 
 checks_seen.add('S15')
 # S15 — пути в публичных текстах существуют (skills/, profiles/, agents/, docs/)
@@ -442,9 +552,9 @@ for rel in ["docs/vector-work.architecture.json", "docs/vector-work.architecture
         if dom not in s and aliases.get(dom, "\x00") not in s:
             errors.append(f"S18 {rel}: домен {dom} не показан на схеме")
 
-# S19 — колонка «Контракт» в таблице ролей README соответствует приёмке.
-# Роль с «—» не должна иметь review-файла, и наоборот: молчаливое расхождение
-# колонки с фактом читатель принимает за состояние.
+# S19 — колонка «Контракт» в таблице ролей README соответствует ФАКТУ приёмки.
+# Источник факта — журнал approvals.jsonl (не review-файлы: они больше не якорь).
+# Сейчас все контракты в DRAFT, поэтому колонка обязана говорить DRAFT, а не ACTIVE.
 checks_seen.add('S19')
 _rd = (ROOT / "README.md").read_text(errors="replace")
 for r in rows_of_tree():
@@ -454,18 +564,30 @@ for r in rows_of_tree():
     if not m:
         continue
     cell = m.group(1).strip()
-    rev = PR / f"{dom}.review.md"
-    mm = re.search(r'applied:\s*(\w+)', rev.read_text(errors="replace")) if rev.exists() else None
-    if mm and cell == "—":
-        errors.append(f"S19 README: {dom} — «—», а приёмка есть ({mm.group(1)})")
-    if not mm and cell not in ("—", ""):
-        errors.append(f"S19 README: {dom} — «{cell}», а review-файла нет")
+    ap = _jr.get(dom) if "_jr" in globals() else None
+    if ap is None:
+        continue
+    md_dom = PR / f"{dom}.md"
+    if not md_dom.exists():
+        continue
+    _l = [l for l in md_dom.read_text(errors="replace").splitlines()
+          if not l.strip().startswith("статус:")]
+    cur = _hl.sha256("\n".join(_l).encode()).hexdigest()[:16]
+    fact = "ACTIVE" if cur == ap.get("body_sha256") else "DRAFT"
+    if fact == "DRAFT" and "DRAFT" not in cell:
+        errors.append(f"S19 README: {dom} — «{cell}», а тело изменено после приёмки "
+                      f"(факт DRAFT)")
+    elif fact == "ACTIVE" and "ACTIVE" not in cell:
+        errors.append(f"S19 README: {dom} — «{cell}», а приёмка действительна "
+                      f"(факт ACTIVE)")
 
 # Счётчик проверок — из ФАКТА, а не хардкод: собираем коды, которые реально
 # срабатывали (checks_seen наполняется при каждой выполненной проверке).
+N_CHECKS = None   # вычисляется ниже из факта (checks_seen)
 seen = set(checks_seen) | {re.match(r'(S\d+b?)', e).group(1) for e in errors}
 CODES = sorted(seen)
-print("\nпроверок выполнено: %d, ошибок: %d" % (len(seen), len(errors)))
+N_CHECKS = len(seen)
+print("\nпроверок выполнено: %d, ошибок: %d" % (N_CHECKS, len(errors)))
 print("коды: " + ", ".join(CODES))
 for e in errors:
     print(f"  ERROR {e}")

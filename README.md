@@ -7,7 +7,7 @@
 [![Architecture: live](https://img.shields.io/badge/Architecture-live_diagram-4f8ff7.svg)](https://osmosy.github.io/vector-work/docs/vector-work.architecture.html)
 
 **Виртуальные сотрудники на базе Hermes Agent — 18 каталогов Cowork: 17 ролей
-организации и 1 витрина partner-built; 252 навыков**
+организации и 1 витрина partner-built; 252 навыка**
 
 [![Hermes Agent](https://img.shields.io/badge/Hermes-Agent-blue.svg)](https://github.com/NousResearch/hermes-agent)
 [![Ecosystem: Vector](https://img.shields.io/badge/Ecosystem-Vector-blue.svg)](https://osmosy.github.io/)
@@ -24,8 +24,8 @@
 
 Копия [Anthropic Knowledge Work Plugins](https://github.com/anthropics/knowledge-work-plugins)
 (23.7k★) для Hermes Agent. 18 каталогов: 17 ролей организации и витрина
-partner-built (71 навык). Всего 252 навыков; копия ролей закреплена от
-`anthropics/knowledge-work-plugins` @ `2ed7b64390` (2026-08-29) — см. `upstream.lock.json`.
+partner-built (71 навык). Всего 252 навыка; копия ролей закреплена от
+`anthropics/knowledge-work-plugins` @ `8444efcd48f7` (2026-10-01) — см. `upstream.lock.json`.
 Активируются по интенту — скажи «проверь NDA» и legal включится сам.
 
 Определения терминов и числа — [docs/VOCABULARY.md](docs/VOCABULARY.md).
@@ -69,27 +69,29 @@ partner-built (71 навык). Всего 252 навыков; копия рол�
 ## Роли
 
 Числа — по дереву (`scripts/build_registry.py`), не по памяти. Расхождение с
-деревом считается дефектом.
+деревом считается дефектом. Колонка «Контракт» — факт приёмки по журналу
+`profiles/approvals.jsonl`: `DRAFT` здесь означает, что тело контракта
+изменилось после пакетной приёмки 2026-10-04 и требует нового ревью.
 
 | Роль | Для каких задач | Навыков | Контракт |
 |------|----------------|---------|----------|
-| **small-business** | Инвойсы, учёт, зарплата, налоги, CRM | 44 | ACTIVE (пакет) |
-| **data** | SQL-запросы, дашборды, мониторинг, ML | 10 | ACTIVE (пакет) |
-| **engineering** | Код-ревью, инциденты, архитектура, деплой | 10 | ACTIVE |
-| **legal** | Триаж NDA, проверка договоров, комплаенс, риски | 9 | ACTIVE |
-| **human-resources** | Онбординг, вакансии, собеседования, оценка | 9 | ACTIVE (пакет) |
-| **operations** | Процессы, вендоры, закупки, мощности | 9 | ACTIVE (пакет) |
-| **sales** | Пайплайн, звонки, прогноз, конкурентная разведка | 36 | ACTIVE (пакет) |
-| **finance** | Проводки, аудит, категоризация, отчётность | 8 | ACTIVE (пакет) |
-| **marketing** | Контент, кампании, SEO, аналитика | 8 | ACTIVE (пакет) |
-| **product-management** | PRD, роадмап, user stories, приоритизация | 8 | ACTIVE (пакет) |
-| **design** | Дизайн-ревью, дизайн-система, accessibility | 7 | ACTIVE (пакет) |
-| **bio-research** | PubMed, геномика, литература, эксперименты | 6 | ACTIVE (пакет) |
-| **customer-support** | Тикеты, эскалации, база знаний, ответы | 5 | ACTIVE (пакет) |
-| **enterprise-search** | Поиск по Slack, Notion, Jira | 5 | ACTIVE (пакет) |
-| **productivity** | Задачи, календарь, заметки, ежедневный брифинг, тайм-трекинг | 4 | ACTIVE (пакет) |
-| **cowork-plugin-management** | Создание и настройка новых ролей (мета) | 2 | ACTIVE (пакет) |
-| **pdf-viewer** | Просмотр и разбор PDF | 1 | ACTIVE (пакет) |
+| **small-business** | Инвойсы, учёт, зарплата, налоги, CRM | 44 | DRAFT |
+| **data** | SQL-запросы, дашборды, мониторинг, ML | 10 | DRAFT |
+| **engineering** | Код-ревью, инциденты, архитектура, деплой | 10 | DRAFT |
+| **legal** | Триаж NDA, проверка договоров, комплаенс, риски | 9 | DRAFT |
+| **human-resources** | Онбординг, вакансии, собеседования, оценка | 9 | DRAFT |
+| **operations** | Процессы, вендоры, закупки, мощности | 9 | DRAFT |
+| **sales** | Пайплайн, звонки, прогноз, конкурентная разведка | 36 | DRAFT |
+| **finance** | Проводки, аудит, категоризация, отчётность | 8 | DRAFT |
+| **marketing** | Контент, кампании, SEO, аналитика | 8 | DRAFT |
+| **product-management** | PRD, роадмап, user stories, приоритизация | 8 | DRAFT |
+| **design** | Дизайн-ревью, дизайн-система, accessibility | 7 | DRAFT |
+| **bio-research** | PubMed, геномика, литература, эксперименты | 6 | DRAFT |
+| **customer-support** | Тикеты, эскалации, база знаний, ответы | 5 | DRAFT |
+| **enterprise-search** | Поиск по Slack, Notion, Jira | 5 | DRAFT |
+| **productivity** | Задачи, календарь, заметки, ежедневный брифинг, тайм-трекинг | 4 | DRAFT |
+| **cowork-plugin-management** | Создание и настройка новых ролей (мета) | 2 | DRAFT |
+| **pdf-viewer** | Просмотр и разбор PDF | 1 | DRAFT |
 
 ### Витрины партнёрских MCP (partner-built, 71 навык)
 
@@ -116,7 +118,7 @@ partner-built (71 навык). Всего 252 навыков; копия рол�
 
 Что лежит **в этом репозитории** (числа по дереву):
 
-    cowork-roles/                18 каталогов, 252 навыков
+    cowork-roles/                18 каталогов, 252 навыка
       из них роли организации     17 каталогов, 181 навык
       витрина partner-built        1 каталог,   71 навык
     skills/ (свои)                3 навыка
@@ -150,7 +152,7 @@ cp -r skills/cowork-roles ~/.hermes/skills/
 
 ## Структура репозитория
 
-    skills/cowork-roles/   18 каталогов (17 ролей + витрина), 252 навыков
+    skills/cowork-roles/   18 каталогов (17 ролей + витрина), 252 навыка
     skills/                3 своих навыка: autonomous-supergoal-patterns,
                            github-repo-research, vector-push
     agents/                orchestrator.md — маршрутизация по интенту

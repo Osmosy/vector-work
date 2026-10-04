@@ -11,11 +11,11 @@
 | cowork-plugin-management | роль | 2 | 0 | 8 | 0 |
 | customer-support | роль | 5 | 8 | 9 | 0 |
 | data | роль | 10 | 8 | 5 | 1 |
-| design | роль | 7 | 0 | 5 | 0 |
+| design | роль | 7 | 9 | 7 | 0 |
 | engineering | роль | 10 | 10 | 7 | 0 |
 | enterprise-search | роль | 5 | 7 | 21 | 0 |
-| finance | роль | 8 | 0 | 4 | 0 |
-| human-resources | роль | 9 | 0 | 6 | 0 |
+| finance | роль | 8 | 6 | 11 | 0 |
+| human-resources | роль | 9 | 5 | 8 | 0 |
 | legal | роль | 9 | 7 | 8 | 0 |
 | marketing | роль | 8 | 13 | 14 | 0 |
 | operations | роль | 9 | 6 | 8 | 0 |
@@ -36,11 +36,11 @@
 | cowork-plugin-management | `file`, `skills`, `memory`, `connections` | коннекторы (8 кат., 0 MCP) |
 | customer-support | `file`, `skills`, `memory`, `connections` | коннекторы (9 кат., 8 MCP) |
 | data | `file`, `skills`, `memory`, `connections` | коннекторы (5 кат., 8 MCP) |
-| design | `file`, `skills`, `memory`, `connections` | коннекторы (5 кат., 0 MCP) |
+| design | `file`, `skills`, `memory`, `connections` | коннекторы (7 кат., 9 MCP) |
 | engineering | `file`, `skills`, `memory`, `connections` | коннекторы (7 кат., 10 MCP) |
 | enterprise-search | `file`, `skills`, `memory`, `connections` | коннекторы (21 кат., 7 MCP) |
-| finance | `file`, `skills`, `memory`, `connections` | коннекторы (4 кат., 0 MCP) |
-| human-resources | `file`, `skills`, `memory`, `connections` | коннекторы (6 кат., 0 MCP) |
+| finance | `file`, `skills`, `memory`, `connections` | коннекторы (11 кат., 6 MCP) |
+| human-resources | `file`, `skills`, `memory`, `connections` | коннекторы (8 кат., 5 MCP) |
 | legal | `file`, `skills`, `memory`, `connections` | коннекторы (8 кат., 7 MCP) |
 | marketing | `file`, `skills`, `memory`, `connections` | коннекторы (14 кат., 13 MCP) |
 | operations | `file`, `skills`, `memory`, `connections` | коннекторы (8 кат., 6 MCP) |
