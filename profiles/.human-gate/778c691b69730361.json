@@ -1,14 +1,20 @@
 {
   "artifact": "/home/lenovo/projects/vector-work/profiles/pdf-viewer.md",
-  "rounds": [],
-  "closed": false,
+  "rounds": [
+    {
+      "round": 1,
+      "collected_at": 1791099355.0561874,
+      "reviewer": "\u041c\u0438\u0445\u0430\u0438\u043b (\u0432\u043b\u0430\u0434\u0435\u043b\u0435\u0446, Osmosy)",
+      "sidecar_sha": "1306723b7aabd86b",
+      "counts": {
+        "APPROVE": 1
+      },
+      "blocking_open": 0,
+      "approved": true,
+      "problems": []
+    }
+  ],
+  "closed": true,
   "waiver": null,
-  "max_rounds": 5,
-  "open_round": {
-    "round": 1,
-    "page": "/home/lenovo/projects/vector-work/profiles/pdf-viewer.review.html",
-    "sidecar": "/home/lenovo/projects/vector-work/profiles/pdf-viewer.review.md",
-    "opened_at": 1791094564.2816107,
-    "headless": null
-  }
+  "max_rounds": 5
 }

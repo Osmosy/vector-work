@@ -44,7 +44,7 @@ def main():
             active += 1
         else:
             draft += 1
-        slots = t.count("<РЕШЕНИЕ")
+        slots = t.count("<РЕШЕНИЕ") + t.count("[Т")
         total_slots += slots
         page = f.with_suffix(".review.html")
         print(f"{f.stem:30} {st:14} {slots:>7}  {'есть' if page.exists() else '— нет'}")

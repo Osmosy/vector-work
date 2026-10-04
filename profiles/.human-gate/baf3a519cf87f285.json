@@ -1,14 +1,20 @@
 {
   "artifact": "/home/lenovo/projects/vector-work/profiles/customer-support.md",
-  "rounds": [],
-  "closed": false,
+  "rounds": [
+    {
+      "round": 1,
+      "collected_at": 1791099354.0783713,
+      "reviewer": "\u041c\u0438\u0445\u0430\u0438\u043b (\u0432\u043b\u0430\u0434\u0435\u043b\u0435\u0446, Osmosy)",
+      "sidecar_sha": "a30740bcfef858db",
+      "counts": {
+        "APPROVE": 1
+      },
+      "blocking_open": 0,
+      "approved": true,
+      "problems": []
+    }
+  ],
+  "closed": true,
   "waiver": null,
-  "max_rounds": 5,
-  "open_round": {
-    "round": 1,
-    "page": "/home/lenovo/projects/vector-work/profiles/customer-support.review.html",
-    "sidecar": "/home/lenovo/projects/vector-work/profiles/customer-support.review.md",
-    "opened_at": 1791094563.3710065,
-    "headless": null
-  }
+  "max_rounds": 5
 }
