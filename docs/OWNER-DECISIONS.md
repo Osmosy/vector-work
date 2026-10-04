@@ -127,23 +127,34 @@ failure-mode procedures` + «apply it directly». Сначала агент ре
 
 **Статус:** решено и включено 2026-10-04 — владелец: «делай все»
 
-Защита `master` включена и **проверена попыткой прямого push** (отклонён:
-«Changes must be made through a pull request»):
+Защита `master` включена и **проверена попыткой прямого push** — GitHub отклонил
+(`Changes must be made through a pull request`):
 
-    required pull request reviews   1, ревью code owner (CODEOWNERS)
-    enforce_admins                  true  ← распространяется и на владельца/токен
-    required status check           structure
-    allow_force_pushes              false
-    allow_deletions                 false
-    required_linear_history         true
+    обязательный pull request      прямой push в master невозможен ← главный барьер
+    обязательный зелёный CI        required status check «structure»
+    enforce_admins                 true  — защита распространена и на владельца/токен
+    allow_force_pushes             false
+    allow_deletions                false
+    required_conversation_resolution true
+
+**Независимый ревьюер не требуется — и не может требоваться.** В репозитории один
+владелец (`Osmosy`), а GitHub запрещает одобрять собственный PR; с требованием
+«1 approval» PR становился несливаемым (проверено: `Merging is blocked`). Поэтому
+барьер здесь — «нельзя мимо PR и нельзя без зелёного CI», а не «нельзя без второго
+человека». Второго человека в аккаунте нет, и `.github/CODEOWNERS` при этом
+остаётся декорацией. Если появится второй рецензент — вернуть `1 approval`.
 
 **Токен агента перевыпущен без `Administration`** (fine-grained, `vector-work-agent`,
-срок до 2027-01-02): снять защиту ветки, обойти required review или перезаписать
-`approvals.jsonl` через API он больше не может. Права: Contents/Pull requests/Issues —
-write, Actions/Metadata — read.
+срок до 2027-01-02): снять защиту ветки, обойти required review или переписать
+`approvals.jsonl` через API он больше не может.
 
-Второй рубеж — CI-шаг **S26**: прямой push в `master`, меняющий `approvals.jsonl`,
-валит сборку; допускается только merge-коммит от PR.
+**Остаток за владельцем:** отозвать прежний OAuth-токен (`read:org, repo, workflow`,
+admin на 40 репозиториев). `enforce_admins` мешает обойти защиту при push, но не
+мешает admin-токену **изменить сами настройки защиты** — пока старый токен жив,
+он может отключить всё перечисленное выше.
+
+Второй рубеж — CI-шаг **S26**: правка `approvals.jsonl`, пришедшая не коммитом
+смердженного PR, валит сборку.
 
 **Ответ владельца:** принято 2026-10-04
 
