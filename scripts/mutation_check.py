@@ -52,6 +52,11 @@ MUTATIONS = [
      "число доменов в реестре"),
     ("S8", "README.md", "badge/License-MIT-yellow", "badge/License-Apache%202.0-yellow",
      "лицензия в бейдже против файла LICENSE"),
+    ("S11", "agents/orchestrator.md", "engineering (10)", "engineering (4)",
+     "число роли в orchestrator.md разошлось с деревом"),
+    ("S11", "agents/orchestrator.md", "finance (8), human-resources (9), operations (9)",
+                                       "finance (8), operations (9)",
+     "orchestrator.md перестал описывать домен human-resources"),
 ]
 
 DELETE_CONTRACT = ("S5", "profiles/human-resources.md", "отсутствующий контракт домена")

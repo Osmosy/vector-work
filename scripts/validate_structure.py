@@ -17,6 +17,7 @@
   S8  LICENSE существует и бейдж лицензии совпадает с типом файла
   S9  REGISTRY.md и README согласованы по числу доменов
   S10 READINESS.md не ссылается на несуществующие домены
+  S11 orchestrator.md описывает все домены и его числа совпадают с деревом
 """
 import sys, re, json, pathlib
 
@@ -159,7 +160,22 @@ if rm.exists():
         if name not in dom and name not in {"domain"}:
             notes.append(f"S10 READINESS.md упоминает «{name}», которого нет в дереве")
 
-print(f"\nпроверок: 10, ошибок: {len(errors)}")
+# S11 — оркестратор не отстаёт от дерева: числа ролей в agents/orchestrator.md
+orch = ROOT / "agents" / "orchestrator.md"
+if not orch.exists():
+    errors.append("S11 agents/orchestrator.md отсутствует")
+else:
+    t = orch.read_text(errors="replace")
+    seen = set()
+    for name, num in re.findall(r'\*{0,2}([a-z][a-z-]+)\*{0,2}\s*\((\d+)\)', t):
+        seen.add(name)
+        if name in dom and int(num) != dom[name]:
+            errors.append(f"S11 orchestrator.md {name}: {num} ≠ дерево {dom[name]}")
+    missing = set(dom) - seen - SKIP_CONTRACT   # витрины не обязаны быть ролью в списке
+    if missing:
+        errors.append(f"S11 orchestrator.md не описывает домены: {', '.join(sorted(missing))}")
+
+print(f"\nпроверок: 11, ошибок: {len(errors)}")
 for e in errors:
     print(f"  ERROR {e}")
 for n in notes:
