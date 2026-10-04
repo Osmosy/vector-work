@@ -1,6 +1,7 @@
 # Журнал приёмки и review-файлы принадлежат владельцу: их правка — это приёмка.
-# Защиту ветки с обязательным ревью code owner владелец включает в настройках
-# GitHub (агент этого сделать не может) — см. profiles/OWNER-DECISIONS.md, D5.
-/profiles/approvals.jsonl   @Osmosy
-/profiles/*.review.md       @Osmosy
-/profiles/OWNER-DECISIONS.md @Osmosy
+# Защита ветки включена 2026-10-04: обязательное ревью владельца по этому файлу
+# (require_code_owner_reviews=true), запрет force-push и удаления ветки,
+# обязательный статус-чек "structure". См. docs/OWNER-DECISIONS.md, D5.
+/profiles/approvals.jsonl    @Osmosy
+/profiles/*.review.md        @Osmosy
+/docs/OWNER-DECISIONS.md     @Osmosy
