@@ -1,7 +1,7 @@
 <!-- human-gate:v1 target=legal.md round=1 -->
 reviewer: Михаил (владелец, Osmosy)
 applied: MANUAL
-body_sha256: f860290ad988fe20
+body_sha256: ac66e0743037da60
 
 ## APPROVE a1
 > Должностная инструкция виртуального сотрудника. Не промпт персонажа — исполняемы

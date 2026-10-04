@@ -244,6 +244,25 @@ for _label, _re_pat, _val in [
     elif int(_m.group(1)) != _val:
         errors.append(f"S20 STATUS.md: {_label} {_m.group(1)} ≠ факт {_val}")
 
+checks_seen.add('S21')
+# S21 — прозаические абзацы REGISTRY.md про терминал и браузер совпадают с
+# таблицей тулсетов. Раньше здесь было противоречие: колонка говорила «да» у двух
+# доменов, тулсет выдан одному, а нижний абзац — что терминал не нужен никому.
+_reg = (PR / "REGISTRY.md").read_text(errors="replace")
+_rows = {r["domain"]: r for r in T.scan()}
+_real_term = sorted(d for d, r in _rows.items() if "terminal" in T.toolsets_need(r))
+_real_brw = sorted(d for d, r in _rows.items() if "browser" in T.toolsets_need(r))
+for _lbl, _real in (("Терминал получает только:", _real_term),
+                    ("Браузер по решению владельца:", _real_brw),
+                    ("Браузер получает только:", _real_brw)):
+    _m = re.search(re.escape(_lbl) + r'([^\n.]*)', _reg)
+    if not _m:
+        continue
+    _named = sorted(re.findall(r'`([a-z][a-z-]+)`', _m.group(1)))
+    if _named != _real:
+        errors.append(f"S21 REGISTRY.md «{_lbl}» названы {_named}, "
+                      f"а тулсет выдан {_real}")
+
 checks_seen.add('S12')
 # S12 — приёмка подкреплена отпечатком тела. Правка тела без нового ревью — ошибка.
 import hashlib as _hl

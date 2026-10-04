@@ -39,7 +39,7 @@
 
 ## Проверки (CI на каждый push)
 
-    22 проверки, коды S1–S20 (включая S7b, S11b)
+    23 проверки, коды S1–S21 (включая S7b, S11b)
       S1   каталог домена без SKILL.md
       S2   число навыков в контракте ≠ дерево
       S3   число в таблице ролей README ≠ дерево
@@ -61,8 +61,9 @@
       S18  числа схемы ≠ дерево или домен пропал со схемы
       S19  колонка «Контракт» в README ≠ факт приёмки
       S20  числа метрик в STATUS.md ≠ факт (три величины раздельно)
+      S21  проза REGISTRY.md о терминале/браузере ≠ таблица тулсетов
 
-    мутаций в mutation_check.py: 26, каждая обязана дать ERROR — 26/26
+    мутаций в mutation_check.py: 27, каждая обязана дать ERROR — 27/27
     счётчик «проверок выполнено» берётся из факта, не хардкодится
 
 Дополнительно, отдельным заданием по расписанию (понедельник 06:00 UTC):
@@ -76,8 +77,8 @@
     scripts/build_contracts.py     контракты + body-hashes.json
     scripts/build_reviews.py       честные review-файлы (PAGE/MANUAL/BATCH)
     scripts/build_readiness.py     READINESS.md (ручной раздел между маркерами)
-    scripts/validate_structure.py  22 проверки
-    scripts/mutation_check.py      26 мутаций
+    scripts/validate_structure.py  23 проверки
+    scripts/mutation_check.py      27 мутаций
     scripts/check_reviews.py       сверка приёмки по отпечаткам (без внешнего гейта)
     scripts/check_upstream.py      сверка состава с апстримом (--by-domain, --json)
     scripts/gate_status.py         сводка гейта (локально; без него деградирует)
