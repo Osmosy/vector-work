@@ -427,6 +427,14 @@ for rel in ["docs/vector-work.architecture.json", "docs/vector-work.architecture
     m = re.search(r'(\d+)\s+доменов', s)
     if m and int(m.group(1)) != _tot["domains"]:
         errors.append(f"S18 {rel}: «{m.group(0)}», в дереве {_tot['domains']} каталогов")
+    # число навыков на схеме тоже сверяется: раньше S18 смотрела только домены,
+    # а «Skills (212)» жило в узле и в 9 местах html без всякой проверки
+    _sk = re.search(r'Skills \((\d+)\)', s)
+    if _sk and int(_sk.group(1)) != _tot["skills"]:
+        errors.append(f"S18 {rel}: «Skills ({_sk.group(1)})», в дереве {_tot['skills']}")
+    _nv = re.search(r'(\d+)\s+навыков', s)
+    if _nv and int(_nv.group(1)) > 50 and int(_nv.group(1)) != _tot["skills"]:
+        errors.append(f"S18 {rel}: «{_nv.group(0)}», в дереве {_tot['skills']}")
     # каждый домен дерева должен упоминаться в схеме (витрины — тоже)
     for dom in sorted(tree_domains()):
         # сокращения схемы (PM/HR) считаются упоминанием

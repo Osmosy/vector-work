@@ -66,7 +66,7 @@
       S22  бейдж синхронизации ≠ ревизия в upstream.lock.json
       S23  контракт не называет закреплённую ревизию апстрима
 
-    мутаций в mutation_check.py: 29, каждая обязана дать ERROR — 29/29
+    мутаций в mutation_check.py: 30, каждая обязана дать ERROR — 30/30
     счётчик «проверок выполнено» берётся из факта, не хардкодится
 
 Дополнительно, отдельным заданием по расписанию (понедельник 06:00 UTC):
@@ -81,7 +81,7 @@
     scripts/build_reviews.py       честные review-файлы (PAGE/MANUAL/BATCH)
     scripts/build_readiness.py     READINESS.md (ручной раздел между маркерами)
     scripts/validate_structure.py  25 проверок
-    scripts/mutation_check.py      29 мутаций
+    scripts/mutation_check.py      30 мутаций
     scripts/check_reviews.py       сверка приёмки по отпечаткам (без внешнего гейта)
     scripts/check_upstream.py      сверка/пиннинг апстрима (--pin, --write-badge, --check)
     scripts/gate_status.py         сводка гейта (локально; без него деградирует)

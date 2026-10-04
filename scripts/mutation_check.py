@@ -96,6 +96,8 @@ MUTATIONS = [
      "домен пропал со схемы"),
     ("S18", "docs/vector-work.architecture.html", "17 ролей + витрина partner-built", "17 доменов",
      "число в html-схеме разошлось с деревом"),
+    ("S18", "docs/vector-work.architecture.json", "Skills (252)", "Skills (212)",
+     "число навыков в схеме разошлось с деревом"),
     ("S19", "README.md", "| ACTIVE (пакет) |", "| — |",
      "колонка «Контракт» разошлась с приёмкой"),
     ("S11b", "agents/orchestrator.md", "Контрактов работников: **17**",
