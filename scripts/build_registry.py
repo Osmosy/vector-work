@@ -1,136 +1,114 @@
 #!/usr/bin/env python3
-"""Генератор реестра доменов vector-work: profiles/REGISTRY.md + profiles/READINESS.md
+"""Генератор реестра доменов vector-work: profiles/REGISTRY.md + profiles/registry.json
 
-Считает по ДЕРЕВУ, а не по README. Запускать после изменения состава домена.
-Печатает расхождения README vs дерево — это и есть защита от устаревших чисел.
+Считает по ДЕРЕВУ через общий сканер `scripts/_tree.py` — единый источник правды
+о составе и правах. Печатает расхождения README vs дерево; на чистом дереве их 0.
+
+Запуск: python3 scripts/build_registry.py
+Ничего домен-специфичного не утверждает: только то, что доказано деревом.
 """
-import os, re, json, pathlib, collections
+import json
+import pathlib
+import sys
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
-CR = ROOT / "skills" / "cowork-roles"
-OUT = ROOT / "profiles"
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import _tree as T
 
-# какие тулсеты НЕ нужны ни одному домену (обоснование least-privilege)
-FORBIDDEN_ALWAYS = ["terminal", "delegate_task", "cronjob_manage", "browser_exec", "computer_use"]
+OUT = T.PROFILES
 
-def scan():
-    rows = []
-    for d in sorted(CR.iterdir()):
-        if not d.is_dir():
-            continue
-        skills = sorted(p.parent.name for p in d.rglob("SKILL.md"))
-        mcp = []
-        mp = d / ".mcp.json"
-        if mp.exists():
-            try:
-                mcp = sorted(json.loads(mp.read_text()).get("mcpServers", {}).keys())
-            except Exception:
-                mcp = []
-        conns = set()
-        py = 0
-        for f in d.rglob("*.md"):
-            t = f.read_text(errors="replace")
-            conns.update(x.strip() for x in re.findall(r'~~([a-z][a-z ]*)', t))
-        for f in d.rglob("*.py"):
-            py += 1
-        # грубая оценка: навык требует браузер/терминал
-        need_browser = need_terminal = False
-        for p in d.rglob("SKILL.md"):
-            t = p.read_text(errors="replace").lower()
-            if re.search(r'browser|web page|navigate to https|screenshot', t):
-                need_browser = True
-            if re.search(r'run the script|python3 scripts/|execute the command', t):
-                need_terminal = True
-        rows.append(dict(
-            domain=d.name, skills=len(skills), skill_names=skills,
-            mcp=len(mcp), mcp_names=mcp, conns=sorted(c for c in conns if len(c) > 2),
-            py=py, need_browser=need_browser, need_terminal=need_terminal,
-        ))
-    return rows
 
-def toolsets_need(r):
-    # база одинакова для всех работников: чтение входа, навыки домена, память о практике
-    t = ["file", "skills", "memory"]
-    if r["conns"] or r["mcp"]:
-        t.append("connections")
-    if r["need_browser"]:
-        t.append("browser")
-    if r["py"] and r["need_terminal"]:
-        t.append("terminal")
-    return t
+def registry_md(rows, tot):
+    L = []
+    A = L.append
+    A("# Реестр доменов Vector Work\n")
+    A("Сгенерировано `scripts/build_registry.py` через `scripts/_tree.py` по дереву.")
+    A(f"Доменов: **{tot['domains']}** ({tot['roles']} ролей организации + "
+      f"{tot['showcases']} витрина) · навыков: **{tot['skills']}** · "
+      f"своих навыков экосистемы: **{tot['own_skills']}**\n")
 
-def readme_counts():
-    """Числа из таблицы ролей README (заявление) — для сверки."""
-    rp = ROOT / "README.md"
-    if not rp.exists():
-        return {}
-    t = rp.read_text(errors="replace")
-    out = {}
-    for m in re.finditer(r"^\|\s*\*{0,2}([a-z-]+)\*{0,2}\s*\|[^|]*\|\s*(\d+)\s*\|", t, re.M):
-        out[m.group(1)] = int(m.group(2))
-    return out
+    A("## Состав доменов\n")
+    A("| Домен | Роль | Навыков | MCP-серверов | Категорий коннекторов | Python |")
+    A("|---|---|---|---|---|---|")
+    for r in rows:
+        A(f"| {r['domain']} | {'витрина' if r['showcase'] else 'роль'} | {r['skills']} | "
+          f"{r['mcp']} | {len(r['conns'])} | {r['py']} |")
+    A("")
 
-rows = scan()
-decl = readme_counts()
+    A("## Тулсеты по домену (least privilege)\n")
+    A("База одинакова для всех: " + ", ".join(f"`{t}`" for t in T.BASE_TOOLSETS) + ".\n")
+    A("| Домен | Тулсеты | Сверх базы — чем доказано |")
+    A("|---|---|---|")
+    for r in rows:
+        ts = T.toolsets_need(r)
+        extra = [t for t in ts if t not in T.BASE_TOOLSETS]
+        why = []
+        if "connections" in extra:
+            why.append(f"коннекторы ({len(r['conns'])} кат., {r['mcp']} MCP)")
+        if "browser" in extra:
+            why.append(r["browser_why"] or "браузер")
+        if "terminal" in extra:
+            why.append(r["terminal_why"] or "скрипты")
+        A(f"| {r['domain']} | `{'`, `'.join(ts)}` | {'; '.join(why) or '—'} |")
+    A("")
 
-# --- REGISTRY.md ---
-L = []
-L.append("# Реестр доменов Vector Work\n")
-L.append("Сгенерировано `scripts/build_registry.py` по дереву, не по README.")
-L.append(f"Доменов: **{len(rows)}** · навыков: **{sum(r['skills'] for r in rows)}**\n")
-L.append("| Домен | Навыков | MCP-серверов | Категорий коннекторов | Python | Нужен браузер | Нужен терминал |")
-L.append("|---|---|---|---|---|---|---|")
-for r in rows:
-    L.append(f"| {r['domain']} | {r['skills']} | {r['mcp']} | {len(r['conns'])} | "
-             f"{r['py']} | {'да' if r['need_browser'] else '—'} | {'да' if r['need_terminal'] else '—'} |")
-L.append("")
-L.append("## Обязательные тулсеты по домену (least privilege)\n")
-L.append("Базовые для всех: `file`, `skills`. Остальное — только если домен это требует.\n")
-L.append("| Домен | Тулсеты |")
-L.append("|---|---|")
-for r in rows:
-    L.append(f"| {r['domain']} | `{'`, `'.join(toolsets_need(r))}` |")
-L.append("")
-L.append("## Запрещено конструктивно для всех доменов\n")
-L.append("Ни один домен библиотеки не требует:\n")
-L.append("    " + ", ".join(f"`{c}`" for c in FORBIDDEN_ALWAYS))
-L.append("")
-L.append("Проверка: ни в одном навыке нет вызова команд терминала, делегирования,")
-L.append("cron или управления компьютером. Домены работают на тексте, шаблонах и данных.")
-L.append("")
-(OUT / "REGISTRY.md").write_text("\n".join(L))
-json.dump(rows, open(OUT / "registry.json", "w"), ensure_ascii=False, indent=1)
+    A("## Права: безусловный запрет и «по требованию»\n")
+    A("**Запрещено всем доменам без исключений** — не требует ни один навык библиотеки:\n")
+    A("    " + ", ".join(f"`{c}`" for c in T.FORBIDDEN_ALWAYS))
+    A("")
+    A("**Выдаётся только по требованию домена** (обоснование — в таблице выше):\n")
+    A("    " + ", ".join(f"`{c}`" for c in T.CONDITIONAL))
+    A("")
+    term = [r["domain"] for r in rows if "terminal" in T.toolsets_need(r)]
+    if term:
+        A(f"Терминал получает только: {', '.join(f'`{d}`' for d in term)} — "
+          f"у этих доменов есть скрипты, вызываемые навыком.")
+    else:
+        A("Терминал не получает ни один домен.")
+    if T.BROWSER_OVERRIDES:
+        A("Браузер выдаётся явным решением владельца: " +
+          ", ".join(f"`{d}`" for d in T.BROWSER_OVERRIDES) + ".")
+    else:
+        A("Браузер не выдан ни одному домену: по тексту навыка он не доказывается "
+          "(эвристика давала ложные срабатывания на «открывается в браузере», "
+          "«сайт-визиты», «кликабельные карточки»). Выдаётся решением владельца.")
+    A("")
+    return "\n".join(L)
 
-# --- README vs дерево ---
-dif = []
-for r in rows:
-    d = r["domain"]
-    if d in decl and decl[d] != r["skills"]:
-        dif.append((d, decl[d], r["skills"]))
-    elif d not in decl:
-        dif.append((d, "—", r["skills"]))
-for k in decl:
-    if k not in {r["domain"] for r in rows}:
-        dif.append((k, decl[k], "нет в дереве"))
 
-print("=" * 72)
-print("README vs ДЕРЕВО — расхождения")
-print("=" * 72)
-print(f"{'домен':26} {'README':>7} {'дерево':>7}")
-for d, a, b in dif:
-    print(f"{d:26} {str(a):>7} {str(b):>7}")
-print(f"\nрасхождений: {len(dif)}")
+def main():
+    rows = T.scan()
+    tot = T.totals(rows)
+    dif = T.discrepancies(rows)
 
-print("\n" + "=" * 72)
-print("СОСТОЯНИЕ ДОМЕНОВ")
-print("=" * 72)
-print(f"{'домен':26} {'навыков':>7} {'mcp':>4} {'конн':>5} {'тулсеты'}")
-for r in rows:
-    print(f"{r['domain']:26} {r['skills']:>7} {r['mcp']:>4} {len(r['conns']):>5}  {'+'.join(toolsets_need(r))}")
-print(f"\nВСЕГО: доменов {len(rows)}, навыков {sum(r['skills'] for r in rows)}")
-print(f"навыков, зависящих от коннекторов: "
-      f"{sum(r['skills'] for r in rows if r['conns'] or r['mcp'])}")
-print(f"доменов без коннекторов вообще: "
-      f"{sum(1 for r in rows if not r['conns'] and not r['mcp'])}")
-json.dump(rows, open(OUT / "registry.json", "w"), ensure_ascii=False, indent=1)
-print(f"\nзаписано: {OUT/'REGISTRY.md'} и {OUT/'registry.json'}")
+    (OUT / "REGISTRY.md").write_text(registry_md(rows, tot))
+    json.dump(rows, open(OUT / "registry.json", "w"), ensure_ascii=False, indent=1)
+
+    print("=" * 72)
+    print("README vs ДЕРЕВО — расхождения")
+    print("=" * 72)
+    if dif:
+        print(f"{'домен':26} {'README':>7} {'дерево':>7}")
+        for d, a, b in dif:
+            print(f"{d:26} {str(a):>7} {str(b):>7}")
+    print(f"\nрасхождений: {len(dif)}")
+
+    print("\n" + "=" * 72)
+    print("СОСТОЯНИЕ ДОМЕНОВ")
+    print("=" * 72)
+    print(f"{'домен':24} {'навыков':>7} {'mcp':>4} {'конн':>5}  тулсеты")
+    for r in rows:
+        print(f"{r['domain']:24} {r['skills']:>7} {r['mcp']:>4} {len(r['conns']):>5}  "
+              f"{'+'.join(T.toolsets_need(r))}")
+    print(f"\nВСЕГО: доменов {tot['domains']} "
+          f"({tot['roles']} ролей + {tot['showcases']} витрина), навыков {tot['skills']}, "
+          f"своих {tot['own_skills']}")
+    print(f"навыков, зависящих от коннекторов: "
+          f"{sum(r['skills'] for r in rows if r['conns'] or r['mcp'])}")
+    print(f"доменов без коннекторов вообще: "
+          f"{sum(1 for r in rows if not r['conns'] and not r['mcp'])}")
+    print(f"\nзаписано: {OUT/'REGISTRY.md'} и {OUT/'registry.json'}")
+    return 1 if dif else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

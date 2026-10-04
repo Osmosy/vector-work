@@ -27,13 +27,13 @@
   "conns": [
    "category",
    "chemical database",
-   "chemical database for bioactive compounds",
-   "chemical database for compounds targeting",
+   "chemical database for bioactive",
+   "chemical database for compounds",
    "clinical data platform",
    "clinical trials",
    "data repository",
    "drug target database",
-   "drug target database for target prioritization",
+   "drug target database for target",
    "drug targets",
    "genomics platform",
    "journal access",
@@ -41,13 +41,16 @@
    "literature",
    "literature database",
    "literature database for papers",
-   "literature database for recent papers on",
+   "literature database for recent",
    "scientific illustration",
    "tool database"
   ],
   "py": 25,
   "need_browser": false,
-  "need_terminal": true
+  "need_terminal": true,
+  "browser_why": null,
+  "terminal_why": "single-cell-rna-qc: «python3 scripts/»",
+  "showcase": false
  },
  {
   "domain": "cowork-plugin-management",
@@ -63,14 +66,17 @@
    "chat",
    "chat in the team channel",
    "project tracker",
-   "project tracker for open tickets assigned to the user",
-   "project tracker for ticket management",
+   "project tracker for open ticket",
+   "project tracker for ticket mana",
    "source control",
    "your"
   ],
   "py": 0,
   "need_browser": false,
-  "need_terminal": false
+  "need_terminal": false,
+  "browser_why": null,
+  "terminal_why": null,
+  "showcase": false
  },
  {
   "domain": "customer-support",
@@ -96,7 +102,7 @@
   "conns": [
    "category",
    "chat",
-   "chat channel for the target team",
+   "chat channel for the target tea",
    "chat channels",
    "cloud storage",
    "email",
@@ -105,8 +111,11 @@
    "support platform"
   ],
   "py": 0,
-  "need_browser": true,
-  "need_terminal": false
+  "need_browser": false,
+  "need_terminal": false,
+  "browser_why": null,
+  "terminal_why": null,
+  "showcase": false
  },
  {
   "domain": "data",
@@ -142,8 +151,11 @@
    "project tracker"
   ],
   "py": 1,
-  "need_browser": true,
-  "need_terminal": false
+  "need_browser": false,
+  "need_terminal": false,
+  "browser_why": null,
+  "terminal_why": null,
+  "showcase": false
  },
  {
   "domain": "design",
@@ -167,8 +179,11 @@
    "user feedback"
   ],
   "py": 0,
-  "need_browser": true,
-  "need_terminal": false
+  "need_browser": false,
+  "need_terminal": false,
+  "browser_why": null,
+  "terminal_why": null,
+  "showcase": false
  },
  {
   "domain": "engineering",
@@ -208,8 +223,11 @@
    "source control"
   ],
   "py": 0,
-  "need_browser": true,
-  "need_terminal": false
+  "need_browser": false,
+  "need_terminal": false,
+  "browser_why": null,
+  "terminal_why": null,
+  "showcase": false
  },
  {
   "domain": "enterprise-search",
@@ -252,11 +270,14 @@
    "project tracker parameter",
    "project tracker query",
    "project tracker result",
-   "project tracker task is marked complete"
+   "project tracker task is marked"
   ],
   "py": 0,
   "need_browser": false,
-  "need_terminal": false
+  "need_terminal": false,
+  "browser_why": null,
+  "terminal_why": null,
+  "showcase": false
  },
  {
   "domain": "finance",
@@ -276,12 +297,15 @@
   "conns": [
    "data warehouse is connected",
    "data warehouse to pull",
-   "data warehouse to pull financial data automatically",
+   "data warehouse to pull financia",
    "erp or"
   ],
   "py": 0,
-  "need_browser": true,
-  "need_terminal": false
+  "need_browser": false,
+  "need_terminal": false,
+  "browser_why": null,
+  "terminal_why": null,
+  "showcase": false
  },
  {
   "domain": "human-resources",
@@ -304,12 +328,15 @@
    "chat",
    "compensation data",
    "knowledge base",
-   "knowledge base for the relevant policy document",
+   "knowledge base for the relevant",
    "project tracker"
   ],
   "py": 0,
   "need_browser": false,
-  "need_terminal": false
+  "need_terminal": false,
+  "browser_why": null,
+  "terminal_why": null,
+  "showcase": false
  },
  {
   "domain": "legal",
@@ -347,7 +374,10 @@
   ],
   "py": 0,
   "need_browser": false,
-  "need_terminal": false
+  "need_terminal": false,
+  "browser_why": null,
+  "terminal_why": null,
+  "showcase": false
  },
  {
   "domain": "marketing",
@@ -387,7 +417,7 @@
    "knowledge base",
    "knowledge base reference",
    "marketing analytics",
-   "marketing analytics is connected",
+   "marketing analytics is connecte",
    "marketing automation",
    "marketing automation or",
    "product analytics",
@@ -395,8 +425,11 @@
    "product analytics is connected"
   ],
   "py": 0,
-  "need_browser": true,
-  "need_terminal": false
+  "need_browser": false,
+  "need_terminal": false,
+  "browser_why": null,
+  "terminal_why": null,
+  "showcase": false
  },
  {
   "domain": "operations",
@@ -433,7 +466,10 @@
   ],
   "py": 0,
   "need_browser": false,
-  "need_terminal": true
+  "need_terminal": true,
+  "browser_why": null,
+  "terminal_why": "runbook: «run the script»",
+  "showcase": false
  },
  {
   "domain": "partner-built",
@@ -511,17 +547,33 @@
    "zoom-apps-sdk",
    "zoom-mcp"
   ],
-  "mcp": 0,
-  "mcp_names": [],
+  "mcp": 12,
+  "mcp_names": [
+   "apollo",
+   "atlassian",
+   "box",
+   "common-room",
+   "figma",
+   "gong",
+   "granola",
+   "notion",
+   "slack",
+   "zoom-docs-mcp",
+   "zoom-mcp",
+   "zoom-whiteboard-mcp"
+  ],
   "conns": [
    "calendar",
    "calendar connector is available",
-   "calendar connector to retrieve all external customer",
+   "calendar connector to retrieve",
    "category"
   ],
   "py": 0,
-  "need_browser": true,
-  "need_terminal": false
+  "need_browser": false,
+  "need_terminal": false,
+  "browser_why": null,
+  "terminal_why": null,
+  "showcase": true
  },
  {
   "domain": "pdf-viewer",
@@ -535,8 +587,11 @@
   ],
   "conns": [],
   "py": 0,
-  "need_browser": true,
-  "need_terminal": false
+  "need_browser": false,
+  "need_terminal": false,
+  "browser_why": null,
+  "terminal_why": null,
+  "showcase": false
  },
  {
   "domain": "product-management",
@@ -584,8 +639,11 @@
    "user feedback"
   ],
   "py": 0,
-  "need_browser": true,
-  "need_terminal": false
+  "need_browser": false,
+  "need_terminal": false,
+  "browser_why": null,
+  "terminal_why": null,
+  "showcase": false
  },
  {
   "domain": "productivity",
@@ -619,8 +677,11 @@
    "task"
   ],
   "py": 0,
-  "need_browser": true,
-  "need_terminal": false
+  "need_browser": false,
+  "need_terminal": false,
+  "browser_why": null,
+  "terminal_why": null,
+  "showcase": false
  },
  {
   "domain": "sales",
@@ -666,8 +727,11 @@
    "sales engagement"
   ],
   "py": 0,
-  "need_browser": true,
-  "need_terminal": false
+  "need_browser": false,
+  "need_terminal": false,
+  "browser_why": null,
+  "terminal_why": null,
+  "showcase": false
  },
  {
   "domain": "small-business",
@@ -721,7 +785,10 @@
   ],
   "conns": [],
   "py": 0,
-  "need_browser": true,
-  "need_terminal": false
+  "need_browser": false,
+  "need_terminal": false,
+  "browser_why": null,
+  "terminal_why": null,
+  "showcase": false
  }
 ]

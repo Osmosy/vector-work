@@ -1,65 +1,96 @@
 #!/usr/bin/env python3
-"""Состояние гейта (human-gate) по всем контрактам Vector Work.
+"""Сводка состояния контрактов Vector Work.
 
-Показывает, что уже принято, что ждёт ревью, сколько слотов осталось.
-Гейт — внешний инструмент: скрипт только читает его состояние, ничего не закрывает.
+Считает по дереву. Работает и БЕЗ внешнего human-gate: если `human_gate.py` из
+~/.hermes не найден, скрипт печатает это одной строкой и выходит 0 — он не
+притворяется, что гейт закрыт, и не зависит от домашнего каталога.
+
+Метрики раздельные (раньше складывались в одну «слоты» и это скрывало разницу):
+    типовых [Т]         заполнено типовым каркасом, не решением владельца
+    открытых <РЕШЕНИЕ   решение нельзя вывести из дерева
+    плейсхолдеров <…>   незаполненные
+
+Приёмка берётся из review-файлов (PAGE / MANUAL / BATCH) и сверяется с отпечатком
+тела. Страницы .review.html в репозиторий не входят (.gitignore) — их отсутствие
+не провал гейта.
 
 Запуск: python3 scripts/gate_status.py
 """
-import json, pathlib, subprocess, sys
+import json
+import os
+import pathlib
+import re
+import sys
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
-PR = ROOT / "profiles"
-HG = pathlib.Path.home() / ".hermes/skills/claude-skills/engineering/human-gate/scripts/human_gate.py"
-NOT_CONTRACT = {"_TEMPLATE", "REGISTRY", "READINESS", "STATUS"}
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import _tree as T
+
+OUT = T.PROFILES
+HG = pathlib.Path(os.environ.get(
+    "HUMAN_GATE",
+    pathlib.Path.home() / ".hermes/skills/claude-skills/engineering/human-gate/scripts/human_gate.py"))
+STATE = OUT / ".human-gate"
 
 
-def gate(artifact):
-    """Статус гейта для артефакта (читаем через сам human-gate)."""
-    try:
-        r = subprocess.run([sys.executable, str(HG), "status", artifact,
-                            "--state-dir", str(PR / ".human-gate")],
-                           cwd=PR, capture_output=True, text=True, timeout=30)
-        return (r.stdout + r.stderr).strip()
-    except Exception as e:
-        return f"status недоступен: {e}"
+def metrics(text):
+    return dict(
+        typical=text.count("[Т]"),
+        open_decisions=text.count("<РЕШЕНИЕ"),
+        placeholders=len(re.findall(r'<[а-яё][^>]{2,40}>', text)),
+    )
+
+
+def applied_kind(review_path):
+    if not review_path.exists():
+        return "нет"
+    m = re.search(r'applied:\s*(\w+)', review_path.read_text(errors="replace"))
+    return m.group(1) if m else "?"
 
 
 def main():
-    contracts = []
-    for f in sorted(PR.glob("*.md")):
-        if f.stem in NOT_CONTRACT or f.stem.startswith("_") or f.stem.endswith(".review"):
-            continue
-        contracts.append(f)
-    print(f"контрактов в profiles/: {len(contracts)}\n")
-    print(f"{'контракт':30} {'статус':14} {'слотов':>7}  {'страница ревью'}")
-    print("-" * 84)
-    active = draft = 0
-    total_slots = 0
-    for f in contracts:
-        t = f.read_text(errors="replace")
-        m = next((l.strip() for l in t.splitlines() if l.strip().startswith("статус:")), "статус: ?")
-        st = "ACTIVE" if "ACTIVE" in m else ("DRAFT" if "DRAFT" in m else "PLAYBOOK" if "ЧЕРНОВИК" in m else "?")
-        if st == "ACTIVE":
-            active += 1
-        else:
-            draft += 1
-        slots = t.count("<РЕШЕНИЕ") + t.count("[Т")
-        total_slots += slots
-        page = f.with_suffix(".review.html")
-        print(f"{f.stem:30} {st:14} {slots:>7}  {'есть' if page.exists() else '— нет'}")
-    print("-" * 84)
-    print(f"ACTIVE: {active}   DRAFT: {draft}   слотов <РЕШЕНИЕ> всего: {total_slots}")
+    bh = OUT / "body-hashes.json"
+    hashes = json.loads(bh.read_text()) if bh.exists() else {}
+
+    contracts = [p for p in sorted(OUT.glob("*.md"))
+                 if not p.stem.startswith("_")
+                 and p.stem not in {"REGISTRY", "READINESS", "STATUS"}
+                 and not p.stem.endswith(".review")]
+
+    print(f"{'контракт':26} {'приёмка':8} {'[Т]':>4} {'<РЕШ':>5} {'<…>':>5}  отпечаток")
+    print("-" * 78)
+    tot = dict(typical=0, open_decisions=0, placeholders=0)
+    kinds = {}
+    for p in contracts:
+        m = metrics(p.read_text(errors="replace"))
+        for k in tot:
+            tot[k] += m[k]
+        kind = applied_kind(OUT / f"{p.stem}.review.md")
+        kinds[kind] = kinds.get(kind, 0) + 1
+        print(f"{p.stem:26} {kind:8} {m['typical']:>4} {m['open_decisions']:>5} "
+              f"{m['placeholders']:>5}  {hashes.get(p.stem, '—')}")
+    print("-" * 78)
+    print(f"ИТОГО по {len(contracts)} контрактам:")
+    print(f"  типовых [Т] {tot['typical']}, открытых <РЕШЕНИЕ {tot['open_decisions']}, "
+          f"плейсхолдеров <…> {tot['placeholders']}")
+    print("  (три РАЗНЫЕ величины, а не одна «слоты»)")
+    print("  приёмка: " + ", ".join(f"{k}={v}" for k, v in sorted(kinds.items())))
+
     print()
-    print("Чтобы принять контракт:")
-    print("  1. открыть profiles/<контракт>.review.html в браузере")
-    print("  2. отменить замечания (или не отмечать, если их нет)")
-    print("  3. экспорт в profiles/<контракт>.review.md")
-    print("  4. агент применяет и закрывает гейт (close -> exit 0)")
-    print()
-    print("Проверить один артефакт вручную:")
-    print(f"  python3 {HG} status <контракт>.md --state-dir {PR/'.human-gate'}")
+    if not HG.exists():
+        print(f"внешний human-gate не найден: {HG}")
+        print("  это не провал гейта: состояние гейта локально и в репозиторий не входит.")
+        print("  приёмку в репозитории сверяет: python3 scripts/check_reviews.py")
+        return 0
+
+    print(f"внешний human-gate: {HG}")
+    print(f"состояние гейта: {STATE} "
+          f"({'есть' if STATE.exists() else 'нет — страницы ревью не открывались'})")
+    print("Чтобы принять контракт: открыть profiles/<контракт>.review.html,")
+    print("отметить замечания, экспорт → profiles/<контракт>.review.md,")
+    print("затем: python3 scripts/build_reviews.py (переписать приёмку честно)")
+    print("Приёмку по отпечаткам сверяет: python3 scripts/check_reviews.py")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -6,7 +6,8 @@
 
 [![Architecture: live](https://img.shields.io/badge/Architecture-live_diagram-4f8ff7.svg)](https://osmosy.github.io/vector-work/docs/vector-work.architecture.html)
 
-**Виртуальные сотрудники на базе Hermes Agent — 17 доменов Cowork (Anthropic), 212 навыков**
+**Виртуальные сотрудники на базе Hermes Agent — 18 каталогов Cowork: 17 ролей
+организации и 1 витрина partner-built; 212 навыков**
 
 [![Hermes Agent](https://img.shields.io/badge/Hermes-Agent-blue.svg)](https://github.com/NousResearch/hermes-agent)
 [![Ecosystem: Vector](https://img.shields.io/badge/Ecosystem-Vector-blue.svg)](https://osmosy.github.io/)
@@ -20,14 +21,17 @@
 ---
 
 Копия [Anthropic Knowledge Work Plugins](https://github.com/anthropics/knowledge-work-plugins)
-(23.7k★) для Hermes Agent. 17 доменов-ролей (212 навыков), синхронизировано
-с upstream 2026-08-30. Активируются по интенту — скажи «проверь NDA» и legal включится сам.
+(23.7k★) для Hermes Agent. 18 каталогов: 17 ролей организации и витрина
+partner-built (71 навык). Всего 212 навыков, синхронизировано с upstream 2026-08-30.
+Активируются по интенту — скажи «проверь NDA» и legal включится сам.
+
+Определения терминов и числа — [docs/VOCABULARY.md](docs/VOCABULARY.md).
 
 ### Синхронизация с upstream
 
 | Дата | Что обновлено |
 |------|---------------|
-| 2026-08-30 | productivity — security-fix (escape file-derived content в dashboard, 06.08); sales — +Monday.com MCP (23.06); small-business — Google MCP удалён upstream (30.07). Полная копия 17 доменов из upstream main |
+| 2026-08-30 | productivity — security-fix (escape file-derived content в dashboard, 06.08); sales — +Monday.com MCP (23.06); small-business — Google MCP удалён upstream (30.07). Полная копия ролей из upstream main |
 | 2026-06-20 | восстановление cowork-roles (32 skills) |
 | 2026-05-30 | init: 14 ролей |
 
@@ -84,19 +88,13 @@
 | brand-voice | 3 | Brand voice enforcement |
 | slack | 2 | Slack (messaging, search) |
 
-### Домены из другого источника (claude-skills)
+### Домены из внешней библиотеки
 
-Навыки этих доменов лежат не в `cowork-roles/`, а в `claude-skills/`:
-
-| Роль | Навыков | Источник |
-|------|---------|---------|
-| project-management | 9 | `claude-skills/project-management/` — Atlassian MCP |
-| research | 8 | `claude-skills/research/` — академические исследования |
-| research-ops | 5 | `claude-skills/research-ops/` — enterprise R&D (→ Vector Marketing) |
-
-Эти домены входят в витрину Vector Work, но их навыки живут в другой библиотеке.
-Смешивать их с `cowork-roles/` в одной таблице нельзя — получаются числа,
-которых в дереве нет.
+Навыки `project-management` (9), `research` (8), `research-ops` (5) лежат **не в этом
+репозитории**, а во внешней библиотеке навыков. В витрину Vector Work они входят
+как ориентир, но в дереве `skills/cowork-roles/` их нет — поэтому контрактов
+в `profiles/` они не имеют. Смешивать их с ролями организации в одной таблице нельзя:
+получаются числа, которых в дереве нет.
 
 ### Итого
 
@@ -117,13 +115,19 @@ hermes "Создай роль для отдела логистики"     # → 
 
 ## Установка
 
-Роли установлены в Hermes: `~/.hermes/skills/cowork-roles/` — **212 навыков**
-(совпадает с деревом репозитория 1:1).
+Установка — копирование каталога навыков в окружение Hermes:
+
+```bash
+cp -r skills/cowork-roles ~/.hermes/skills/
+```
+
+Состав копии сверяется с деревом репозитория: `python3 scripts/build_registry.py`.
 
 ## Структура репозитория
 
-    skills/cowork-roles/   18 доменов-ролей, 212 навыков (Anthropic Cowork)
-    skills/                4 своих навыка экосистемы
+    skills/cowork-roles/   18 каталогов (17 ролей + витрина), 212 навыков
+    skills/                3 своих навыка: autonomous-supergoal-patterns,
+                           github-repo-research, vector-push
     agents/                orchestrator.md — маршрутизация по интенту
     profiles/              контракты работников (см. ниже)
     docs/                  архитектурная схема
@@ -137,8 +141,10 @@ hermes "Создай роль для отдела логистики"     # → 
     profiles/_TEMPLATE.md         шаблон контракта
     profiles/REGISTRY.md          реестр доменов по дереву (генерируется)
     profiles/READINESS.md         зрелость доменов и что нужно каждому
-    profiles/legal.md             контракт роли legal (ACTIVE)
-    profiles/legal-playbook.md    каркас плейбука переговоров и NDA
+    profiles/<домен>.md           17 контрактов ролей + плейбук legal
+    profiles/body-hashes.json     отпечатки тел (правка тела роняет приёмку)
+    profiles/REGISTRY.md          реестр (генерируется)
+    profiles/STATUS.md            состояние структуры
 
 Реестр пересобирается после изменения состава: `python3 scripts/build_registry.py`.
 Он же сверяет числа README с деревом и печатает расхождения.

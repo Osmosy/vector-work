@@ -25,33 +25,39 @@ jobs:
       - name: Валидатор структуры
         run: python3 scripts/validate_structure.py
 
-      - name: Реестр не устарел
+      - name: Генераторы идемпотентны
+        # Шаг ловит и созданный, и удалённый файл: раньше сравнивались только те
+        # файлы, что были в бэкапе, поэтому новый контракт или его удаление
+        # проходили незамеченными.
+        #
+        # ВАЖНО: git status сам по себе не годится — он показывает diff против
+        # коммита, а не против предыдущего прогона, и в рабочем дереве с
+        # незакоммиченными правками всегда непуст. Поэтому сравниваем снимок
+        # файлов ДО и ПОСЛЕ прогона генераторов.
         run: |
-          cp profiles/REGISTRY.md /tmp/REGISTRY.md.bak
-          cp profiles/registry.json /tmp/registry.json.bak
-          python3 scripts/build_registry.py >/dev/null
-          diff -q /tmp/REGISTRY.md.bak profiles/REGISTRY.md >/dev/null \
-            || { echo "::error::profiles/REGISTRY.md устарел — прогони scripts/build_registry.py и закоммить"; \
-                 diff /tmp/REGISTRY.md.bak profiles/REGISTRY.md | head -40; exit 1; }
-          echo "REGISTRY.md актуален"
+          rm -rf /tmp/snap1 /tmp/snap2 && mkdir -p /tmp/snap1 /tmp/snap2
+          cp profiles/*.md profiles/body-hashes.json /tmp/snap1/
+          python3 scripts/build_registry.py
+          python3 scripts/build_contracts.py
+          python3 scripts/build_reviews.py
+          python3 scripts/build_readiness.py
+          cp profiles/*.md profiles/body-hashes.json /tmp/snap2/
+          if ! diff -rq /tmp/snap1 /tmp/snap2; then
+            echo "::error::генераторы не идемпотентны — второй прогон меняет дерево"
+            exit 1
+          fi
+          echo "генераторы идемпотентны: повторный прогон не изменил ни одного файла"
 
-      - name: Контракты не устарели
-        run: |
-          mkdir -p /tmp/contracts.bak && cp profiles/*.md /tmp/contracts.bak/
-          python3 scripts/build_contracts.py >/dev/null
-          changed=0
-          for f in profiles/*.md; do
-            b="/tmp/contracts.bak/$(basename "$f")"
-            if [ -f "$b" ] && ! diff -q "$b" "$f" >/dev/null; then
-              echo "::error::$f расходится с генератором — прогони scripts/build_contracts.py"
-              changed=1
-            fi
-          done
-          [ "$changed" = "0" ] || exit 1
-          echo "контракты актуальны"
+      - name: Валидатор после генераторов
+        run: python3 scripts/validate_structure.py
 
       - name: Мутационная проверка самого валидатора
         run: python3 scripts/mutation_check.py
+
+      - name: Сводка приёмки
+        # gate_status.py читает внешний human-gate из ~/.hermes, которого в CI нет.
+        # Здесь сверяем приёмку по отпечаткам тел — то, что лежит в репозитории.
+        run: python3 scripts/check_reviews.py
 
       - name: Скрипты не зависят от домашнего каталога
         # Класс дефекта: путь собирался от $HOME, локально совпадал, на раннере — нет.

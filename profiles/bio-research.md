@@ -3,7 +3,7 @@
     роль:        bio-research
     версия:      0.1
     статус:      ACTIVE — прошёл human-gate 2026-10-04, ревьюер назван (см. <домен>.review.md)
-    владелец:    <кто отвечает>
+    владелец:    Михаил (Osmosy)
     домен:       skills/cowork-roles/bio-research/ — 6 навыков (по дереву)
     источник:    Anthropic Cowork (Apache-2.0)
 
@@ -44,19 +44,19 @@
 
 ## 3. Разрешённые инструменты (least privilege)
 
-Права объявлены минимальным набором — по факту требований навыков домена:
+Права вычислены `scripts/_tree.py` по дереву домена:
 
     тулсет         инструменты                          зачем
     file           read_file, write_file, patch, ...    чтение входа, запись заключения
     skills         skills_list, skill_view              загрузка навыков домена
     memory         memory                               факты о практике
     connections    manage_connections                   11 MCP-серверов, 19 категорий коннекторов
-    terminal       terminal, process_manage             25 Python-скриптов в домене
+    terminal       terminal, process_manage             25 Python-скриптов; single-cell-rna-qc: «python3 scripts/»
 
 Запрещено конструктивно: `delegate_task`, `cronjob_manage`, `computer_use`, `browser_*`.
 
 Обоснование по дереву:
-  - браузер не требует ни один навык домена;
+  - браузер не требуется: по тексту навыка он не доказывается;
   - делегирование, cron и управление компьютером не требует ни один домен библиотеки.
 
 ## 4. Что разрешено и что запрещено
@@ -98,7 +98,7 @@
     MCP-серверов          11 (benchling, biorender, biorxiv, c-trials, chembl, consensus…)
     категорий коннекторов 19
     Python-скриптов       25
-    нужен браузер         —
+    тулсетов сверх базы   connections, terminal
 
 **Требует внешних систем.** Пока ни один коннектор домена не подключён, результат
 будет каркасным либо построенным на общих дефолтах, а не на данных организации.

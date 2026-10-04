@@ -27,6 +27,8 @@ PR = ROOT / "profiles"
 SKIP_CONTRACT = {"partner-built"}     # витрина, контракта не имеет
 # файлы в profiles/, которые не являются контрактами домена
 NOT_CONTRACT = {"_TEMPLATE", "REGISTRY", "READINESS", "STATUS"}
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import _tree as T
 ALWAYS_FORBIDDEN = ["delegate_task", "cronjob_manage", "computer_use"]
 # Осознанные расширения прав сверх вычисленных по дереву. Каждое должно быть
 # названо здесь явно — иначе проверка S7b валит контракт. Так новый лишний
@@ -35,6 +37,7 @@ EXTRA_ALLOWED = {
     "legal": {"web"},   # сверка действующей редакции нормы по первоисточнику
 }
 errors, notes = [], []
+checks_seen = set()   # коды фактически выполненных проверок (для честного счётчика)
 
 
 def tree_domains():
@@ -74,6 +77,7 @@ def registry_expected(domain):
 dom = tree_domains()
 print(f"доменов в дереве: {len(dom)}, навыков: {sum(dom.values())}")
 
+checks_seen.update({'S1','S2'})
 # S1 / S2
 for name, n in dom.items():
     if n == 0:
@@ -92,6 +96,7 @@ for f in PR.glob("*.md"):
     if dname in dom and dom[dname] != dnum:
         errors.append(f"S2 {f.name}: объявлено {dnum} навыков, в дереве {dom[dname]}")
 
+checks_seen.add('S3')
 # S3 — числа таблицы ролей README
 rd = (ROOT / "README.md").read_text(errors="replace")
 roles = re.findall(r'^\|\s*\*{0,2}([a-z-]+)\*{0,2}\s*\|[^|]*\|\s*(\d+)\s*\|', rd, re.M)
@@ -99,6 +104,7 @@ for name, num in roles:
     if name in dom and int(num) != dom[name]:
         errors.append(f"S3 README роль {name}: {num} ≠ дерево {dom[name]}")
 
+checks_seen.add('S4')
 # S4 — бейджи
 for badge, val in (("Domains", len(dom)), ("Skills", sum(dom.values()))):
     m = re.search(rf'badge/{badge}-(\d+)-', rd)
@@ -107,6 +113,7 @@ for badge, val in (("Domains", len(dom)), ("Skills", sum(dom.values()))):
     elif int(m.group(1)) != val:
         errors.append(f"S4 бейдж {badge}: {m.group(1)} ≠ {val}")
 
+checks_seen.update({'S5','S6','S7','S7b'})
 # S5 / S6 / S7
 for name in dom:
     if name in SKIP_CONTRACT:
@@ -132,6 +139,7 @@ for name in dom:
             if e not in ALWAYS_FORBIDDEN:
                 errors.append(f"S7b {p.name}: тулсет «{e}» не требуется доменом по дереву")
 
+checks_seen.add('S8')
 # S8 — лицензия
 lic = ROOT / "LICENSE"
 if not lic.exists():
@@ -144,6 +152,7 @@ else:
     if kind and badge_kind and kind.lower() not in badge_kind.lower():
         errors.append(f"S8 LICENSE={kind}, бейдж={badge_kind}")
 
+checks_seen.add('S9')
 # S9
 reg = (PR / "REGISTRY.md")
 if not reg.exists():
@@ -153,6 +162,7 @@ else:
     if not m or int(m.group(1)) != len(dom):
         errors.append(f"S9 REGISTRY.md: доменов {m.group(1) if m else '?'} ≠ {len(dom)}")
 
+checks_seen.add('S10')
 # S10
 rm = (PR / "READINESS.md")
 if rm.exists():
@@ -160,6 +170,7 @@ if rm.exists():
         if name not in dom and name not in {"domain"}:
             notes.append(f"S10 READINESS.md упоминает «{name}», которого нет в дереве")
 
+checks_seen.add('S11')
 # S11 — оркестратор не отстаёт от дерева: числа ролей в agents/orchestrator.md
 orch = ROOT / "agents" / "orchestrator.md"
 if not orch.exists():
@@ -175,7 +186,142 @@ else:
     if missing:
         errors.append(f"S11 orchestrator.md не описывает домены: {', '.join(sorted(missing))}")
 
-print(f"\nпроверок: 11, ошибок: {len(errors)}")
+checks_seen.add('S12')
+# S12 — приёмка подкреплена отпечатком тела. Правка тела без нового ревью — ошибка.
+import hashlib as _hl
+import json as _json
+bh = OUT_HASHES = PR / "body-hashes.json"
+if not bh.exists():
+    errors.append("S12 profiles/body-hashes.json отсутствует — прогони build_contracts.py")
+else:
+    hashes = _json.loads(bh.read_text()) if bh.exists() else {}
+    for stem, h in hashes.items():
+        md = PR / f"{stem}.md"
+        rv = PR / f"{stem}.review.md"
+        if not rv.exists():
+            errors.append(f"S12 {stem}: статус без review-файла — приёмки нет")
+            continue
+        rt = rv.read_text(errors="replace")
+        m = re.search(r'body_sha256:\s*([0-9a-f]{8,64})', rt)
+        if not m:
+            errors.append(f"S12 {stem}.review.md: нет отпечатка тела (body_sha256)")
+        elif m.group(1) != h:
+            errors.append(f"S12 {stem}: тело изменено после приёмки "
+                          f"(review {m.group(1)}, сейчас {h}) — нужно новое ревью")
+        # отпечаток в файле хэшей должен совпадать с фактическим телом
+        if md.exists():
+            lines = [l for l in md.read_text(errors="replace").splitlines()
+                     if not l.strip().startswith("статус:")]
+            actual = _hl.sha256("\n".join(lines).encode()).hexdigest()[:16]
+            if actual != h:
+                errors.append(f"S12 {stem}: body-hashes.json устарел "
+                              f"({h} ≠ {actual}) — прогони build_contracts.py")
+
+checks_seen.add('S13')
+# S13 — статус ACTIVE не держится на незаполненном плейсхолдере владельца.
+# Шапка контракта — блок метаданных с отступом, а НЕ первый абзац текста
+# (первый абзац — заголовок «# Контракт работника: X»).
+for stem in (hashes if bh.exists() else []):
+    md = PR / f"{stem}.md"
+    if not md.exists():
+        continue
+    head_lines = []
+    for line in md.read_text(errors="replace").splitlines():
+        if line.strip() and not line.startswith(("#", "    ")):
+            break
+        head_lines.append(line)
+    head = "\n".join(head_lines)
+    if "ACTIVE" in head and "<кто отвечает>" in head:
+        errors.append(f"S13 {stem}: статус ACTIVE при незаполненном владельце "
+                      f"«<кто отвечает>» — назначь владельца или понизь статус")
+
+checks_seen.add('S14')
+# S14 — в публичных текстах нет устаревших утверждений о СОСТАВЕ и чужого локального пути.
+# Историческая строка журнала синхронизации («init: 14 ролей») — не утверждение о
+# текущем составе, поэтому строки таблицы журнала из проверки исключены.
+PUBLIC = ["README.md", "agents/orchestrator.md", "agent-description.md"]
+for rel in PUBLIC:
+    p = ROOT / rel
+    if not p.exists():
+        continue
+    t = p.read_text(errors="replace")
+    for line in t.splitlines():
+        if line.lstrip().startswith("|"):        # таблицы (журнал, роли) — не проза
+            continue
+        if re.search(r'\b14\s+(профессиональных\s+)?рол', line):
+            errors.append(f"S14 {rel}: устаревшее «14 ролей» в прозе — "
+                          f"ролей {T.totals()['roles']}")
+            break
+    if rel != "README.md" and "claude-skills/" in t:
+        errors.append(f"S14 {rel}: локальный путь `claude-skills/`, которого нет в дереве")
+
+checks_seen.add('S15')
+# S15 — пути в публичных текстах существуют (skills/, profiles/, agents/, docs/)
+for rel in PUBLIC:
+    p = ROOT / rel
+    if not p.exists():
+        continue
+    for path in re.findall(r'`((?:skills|profiles|agents|docs)/[^`\s]+)`', p.read_text(errors="replace")):
+        if any(ch in path for ch in "<>*"):
+            continue
+        if not (ROOT / path.rstrip("/")).exists():
+            errors.append(f"S15 {rel}: путь `{path}` не существует")
+
+checks_seen.add('S16')
+# S16 — число своих навыков равно дереву и в README, и в словаре (два места, один факт).
+# Строка должна говорить именно про СВОИ навыки, поэтому ищем «сво… навык» в пределах
+# одной строки, а не по всему файлу (иначе ловит «212 навыков» выше по тексту).
+own = T.own_skills()
+for rel in ["README.md", "docs/VOCABULARY.md"]:
+    q = ROOT / rel
+    if not q.exists():
+        continue
+    for line in q.read_text(errors="replace").splitlines():
+        m = re.search(r'(\d+)\s+сво[а-яё]*\s+навык', line)
+        if m:
+            if int(m.group(1)) != len(own):
+                errors.append(f"S16 {rel}: своих навыков {m.group(1)}, "
+                              f"в дереве {len(own)}")
+            break
+
+# S17 — у каждого домена верхнего уровня есть LICENSE (у витрины — у каждой витрины).
+checks_seen.add('S17')
+for d in sorted(CR.iterdir()):
+    if not d.is_dir():
+        continue
+    if d.name in SKIP_CONTRACT:            # partner-built — лицензии у витрин
+        for sub in sorted(d.iterdir()):
+            if sub.is_dir() and not (sub / "LICENSE").exists() and not (sub / "LICENSE.txt").exists():
+                errors.append(f"S17 partner-built/{sub.name}: нет LICENSE")
+        continue
+    if not (d / "LICENSE").exists() and not (d / "LICENSE.txt").exists():
+        errors.append(f"S17 {d.name}: нет LICENSE")
+if not (ROOT / "LICENSES" / "Apache-2.0.txt").exists():
+    errors.append("S17 LICENSES/Apache-2.0.txt отсутствует — текст апстрима не сохранён")
+
+# S18 — числа в архитектурной схеме (json + html) совпадают с деревом.
+# Схема — собранный артефакт без генератора в репозитории, поэтому её числа
+# расходятся молча: устаревшее «17 доменов» жило и в json, и в 6 местах html.
+checks_seen.add('S18')
+_tot = T.totals()
+for rel in ["docs/vector-work.architecture.json", "docs/vector-work.architecture.html"]:
+    q = ROOT / rel
+    if not q.exists():
+        errors.append(f"S18 {rel} отсутствует")
+        continue
+    s = q.read_text(errors="replace")
+    m = re.search(r'(\d+)\s+доменов', s)
+    if m and int(m.group(1)) != _tot["domains"]:
+        errors.append(f"S18 {rel}: «{m.group(0)}», в дереве {_tot['domains']} каталогов")
+    if rel.endswith(".json") and '"research"' in s:
+        errors.append(f"S18 {rel}: домен research, которого нет в дереве")
+
+# Счётчик проверок — из ФАКТА, а не хардкод: собираем коды, которые реально
+# срабатывали (checks_seen наполняется при каждой выполненной проверке).
+seen = set(checks_seen) | {re.match(r'(S\d+b?)', e).group(1) for e in errors}
+CODES = sorted(seen)
+print("\nпроверок выполнено: %d, ошибок: %d" % (len(seen), len(errors)))
+print("коды: " + ", ".join(CODES))
 for e in errors:
     print(f"  ERROR {e}")
 for n in notes:
