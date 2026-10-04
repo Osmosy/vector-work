@@ -1,0 +1,14 @@
+{
+  "artifact": "/home/lenovo/projects/vector-work/profiles/small-business.md",
+  "rounds": [],
+  "closed": false,
+  "waiver": null,
+  "max_rounds": 5,
+  "open_round": {
+    "round": 1,
+    "page": "/home/lenovo/projects/vector-work/profiles/small-business.review.html",
+    "sidecar": "/home/lenovo/projects/vector-work/profiles/small-business.review.md",
+    "opened_at": 1791094564.673322,
+    "headless": null
+  }
+}

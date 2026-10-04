@@ -1,0 +1,54 @@
+name: structure
+
+# Проверка структуры Vector Work: числа README и бейджей, контракты работников,
+# границы прав, лицензия. Всё считается по дереву — устаревшее число роняет CI.
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  structure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Зависимостей нет (только stdlib)
+        run: python3 -c "import sys; print(sys.version)"
+
+      - name: Валидатор структуры
+        run: python3 scripts/validate_structure.py
+
+      - name: Реестр не устарел
+        run: |
+          cp profiles/REGISTRY.md /tmp/REGISTRY.md.bak
+          cp profiles/registry.json /tmp/registry.json.bak
+          python3 scripts/build_registry.py >/dev/null
+          diff -q /tmp/REGISTRY.md.bak profiles/REGISTRY.md >/dev/null \
+            || { echo "::error::profiles/REGISTRY.md устарел — прогони scripts/build_registry.py и закоммить"; \
+                 diff /tmp/REGISTRY.md.bak profiles/REGISTRY.md | head -40; exit 1; }
+          echo "REGISTRY.md актуален"
+
+      - name: Контракты не устарели
+        run: |
+          mkdir -p /tmp/contracts.bak && cp profiles/*.md /tmp/contracts.bak/
+          python3 scripts/build_contracts.py >/dev/null
+          changed=0
+          for f in profiles/*.md; do
+            b="/tmp/contracts.bak/$(basename "$f")"
+            if [ -f "$b" ] && ! diff -q "$b" "$f" >/dev/null; then
+              echo "::error::$f расходится с генератором — прогони scripts/build_contracts.py"
+              changed=1
+            fi
+          done
+          [ "$changed" = "0" ] || exit 1
+          echo "контракты актуальны"
+
+      - name: Мутационная проверка самого валидатора
+        run: python3 scripts/mutation_check.py

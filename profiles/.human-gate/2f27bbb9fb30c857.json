@@ -1,0 +1,14 @@
+{
+  "artifact": "/home/lenovo/projects/vector-work/profiles/human-resources.md",
+  "rounds": [],
+  "closed": false,
+  "waiver": null,
+  "max_rounds": 5,
+  "open_round": {
+    "round": 1,
+    "page": "/home/lenovo/projects/vector-work/profiles/human-resources.review.html",
+    "sidecar": "/home/lenovo/projects/vector-work/profiles/human-resources.review.md",
+    "opened_at": 1791094563.9732282,
+    "headless": null
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "artifact": "/home/lenovo/projects/vector-work/profiles/operations.md",
+  "rounds": [],
+  "closed": false,
+  "waiver": null,
+  "max_rounds": 5,
+  "open_round": {
+    "round": 1,
+    "page": "/home/lenovo/projects/vector-work/profiles/operations.review.html",
+    "sidecar": "/home/lenovo/projects/vector-work/profiles/operations.review.md",
+    "opened_at": 1791094564.1866877,
+    "headless": null
+  }
+}

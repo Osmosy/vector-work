@@ -1,0 +1,14 @@
+{
+  "artifact": "/home/lenovo/projects/vector-work/profiles/legal-playbook.md",
+  "rounds": [],
+  "closed": false,
+  "waiver": null,
+  "max_rounds": 5,
+  "open_round": {
+    "round": 1,
+    "page": "/home/lenovo/projects/vector-work/profiles/legal-playbook.review.html",
+    "sidecar": "/home/lenovo/projects/vector-work/profiles/legal-playbook.review.md",
+    "opened_at": 1791093388.8766565,
+    "headless": null
+  }
+}

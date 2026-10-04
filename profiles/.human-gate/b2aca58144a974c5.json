@@ -1,0 +1,14 @@
+{
+  "artifact": "/home/lenovo/projects/vector-work/profiles/enterprise-search.md",
+  "rounds": [],
+  "closed": false,
+  "waiver": null,
+  "max_rounds": 5,
+  "open_round": {
+    "round": 1,
+    "page": "/home/lenovo/projects/vector-work/profiles/enterprise-search.review.html",
+    "sidecar": "/home/lenovo/projects/vector-work/profiles/enterprise-search.review.md",
+    "opened_at": 1791094563.767044,
+    "headless": null
+  }
+}

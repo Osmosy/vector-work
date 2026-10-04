@@ -1,0 +1,14 @@
+{
+  "artifact": "/home/lenovo/projects/vector-work/profiles/engineering.md",
+  "rounds": [],
+  "closed": false,
+  "waiver": null,
+  "max_rounds": 5,
+  "open_round": {
+    "round": 1,
+    "page": "/home/lenovo/projects/vector-work/profiles/engineering.review.html",
+    "sidecar": "/home/lenovo/projects/vector-work/profiles/engineering.review.md",
+    "opened_at": 1791094563.6680624,
+    "headless": null
+  }
+}

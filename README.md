@@ -10,10 +10,10 @@
 
 [![Hermes Agent](https://img.shields.io/badge/Hermes-Agent-blue.svg)](https://github.com/NousResearch/hermes-agent)
 [![Ecosystem: Vector](https://img.shields.io/badge/Ecosystem-Vector-blue.svg)](https://osmosy.github.io/)
-[![Domains: 17](https://img.shields.io/badge/Domains-17-green.svg)](#роли)
+[![Domains: 18](https://img.shields.io/badge/Domains-18-green.svg)](#роли)
 [![Skills: 212](https://img.shields.io/badge/Skills-212-orange.svg)](https://github.com/anthropics/knowledge-work-plugins)
 [![Sync: 2026-08-30](https://img.shields.io/badge/Sync-2026__08__30-blueviolet.svg)](https://github.com/anthropics/knowledge-work-plugins/commits/main)
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 </div>
 
@@ -48,33 +48,61 @@
 
 ## Роли
 
-| Роль | Для каких задач | Навыков |
-|------|----------------|---------|
-| **productivity** | Задачи, календарь, заметки, ежедневный брифинг | 3 |
-| **product-management** | PRD, роадмап, user stories, приоритизация | 7 |
-| **legal** | Триаж NDA, проверка договоров, комплаенс, риски | 6 |
-| **finance** | Проводки, аудит, категоризация, отчётность | 6 |
-| **data** | SQL-запросы, дашборды, мониторинг, ML | 6 |
-| **engineering** | Код-ревью, инциденты, архитектура, деплой | 7 |
-| **design** | Дизайн-ревью, дизайн-система, accessibility | 6 |
-| **human-resources** | Онбординг, вакансии, собеседования, оценка | 6 |
-| **operations** | Процессы, вендоры, закупки, мощности | 6 |
-| **enterprise-search** | Поиск по Slack, Notion, Jira | 4 |
-| **bio-research** | PubMed, геномика, литература, эксперименты | 5 |
-| **small-business** | Инвойсы, учёт, зарплата, налоги, CRM | 31 |
-| **cowork-plugin-management** | Создание и настройка новых ролей (мета) | 4 |
-| **project-management** | Senior PM, Scrum Master, Jira, Confluence, Atlassian admin | 9 |
-| **research** | Обзор литературы, гранты, патенты, syllabus | 8 |
-| **productivity** | Тайм-трекинг, фокус-сессии, meeting notes | 6 |
+Числа — по дереву (`scripts/build_registry.py`), не по памяти. Расхождение с
+деревом считается дефектом.
 
-### Новые домены (claude-skills, май 2026)
+| Роль | Для каких задач | Навыков | Контракт |
+|------|----------------|---------|----------|
+| **small-business** | Инвойсы, учёт, зарплата, налоги, CRM | 31 | — |
+| **data** | SQL-запросы, дашборды, мониторинг, ML | 10 | — |
+| **engineering** | Код-ревью, инциденты, архитектура, деплой | 10 | — |
+| **legal** | Триаж NDA, проверка договоров, комплаенс, риски | 9 | ACTIVE |
+| **human-resources** | Онбординг, вакансии, собеседования, оценка | 9 | — |
+| **operations** | Процессы, вендоры, закупки, мощности | 9 | — |
+| **sales** | Пайплайн, звонки, прогноз, конкурентная разведка | 9 | — |
+| **finance** | Проводки, аудит, категоризация, отчётность | 8 | — |
+| **marketing** | Контент, кампании, SEO, аналитика | 8 | — |
+| **product-management** | PRD, роадмап, user stories, приоритизация | 8 | — |
+| **design** | Дизайн-ревью, дизайн-система, accessibility | 7 | — |
+| **bio-research** | PubMed, геномика, литература, эксперименты | 6 | — |
+| **customer-support** | Тикеты, эскалации, база знаний, ответы | 5 | — |
+| **enterprise-search** | Поиск по Slack, Notion, Jira | 5 | — |
+| **productivity** | Задачи, календарь, заметки, ежедневный брифинг, тайм-трекинг | 4 | — |
+| **cowork-plugin-management** | Создание и настройка новых ролей (мета) | 2 | — |
+| **pdf-viewer** | Просмотр и разбор PDF | 1 | — |
+
+### Витрины партнёрских MCP (partner-built, 71 навык)
+
+Роли, написанные под конкретные системы, а не под функцию организации.
+В таблице выше не перечислены поштучно — это одна витрина:
+
+| Витрина | Навыков | Под что |
+|---------|---------|---------|
+| zoom-plugin | 57 | Zoom (встречи, SDK, RTMS, Contact Center) |
+| common-room | 6 | Common Room (prospecting, account research) |
+| apollo | 3 | Apollo (enrichment, sequences) |
+| brand-voice | 3 | Brand voice enforcement |
+| slack | 2 | Slack (messaging, search) |
+
+### Домены из другого источника (claude-skills)
+
+Навыки этих доменов лежат не в `cowork-roles/`, а в `claude-skills/`:
 
 | Роль | Навыков | Источник |
 |------|---------|---------|
-| project-management | 9 | `claude-skills/project-management/` — 12 Python-тулов, Atlassian MCP |
+| project-management | 9 | `claude-skills/project-management/` — Atlassian MCP |
 | research | 8 | `claude-skills/research/` — академические исследования |
-| productivity | 6 | `claude-skills/productivity/` — личная продуктивность |
 | research-ops | 5 | `claude-skills/research-ops/` — enterprise R&D (→ Vector Marketing) |
+
+Эти домены входят в витрину Vector Work, но их навыки живут в другой библиотеке.
+Смешивать их с `cowork-roles/` в одной таблице нельзя — получаются числа,
+которых в дереве нет.
+
+### Итого
+
+    cowork-roles/   18 каталогов, 212 навыков
+    claude-skills/  3 домена, 22 навыка (project-management, research, research-ops)
+    partner-built   71 из 212 — витрина партнёрских MCP, а не роли организации
 
 ## Быстрый старт
 
@@ -89,7 +117,31 @@ hermes "Создай роль для отдела логистики"     # → 
 
 ## Установка
 
-Роли уже установлены в Hermes: `~/.hermes/skills/cowork-roles/` (141 навык).
+Роли установлены в Hermes: `~/.hermes/skills/cowork-roles/` — **212 навыков**
+(совпадает с деревом репозитория 1:1).
+
+## Структура репозитория
+
+    skills/cowork-roles/   18 доменов-ролей, 212 навыков (Anthropic Cowork)
+    skills/                4 своих навыка экосистемы
+    agents/                orchestrator.md — маршрутизация по интенту
+    profiles/              контракты работников (см. ниже)
+    docs/                  архитектурная схема
+
+## Контракты работников (profiles/)
+
+Роль = не промпт персонажа, а исполняемые ограничения. Контракт описывает, что
+работник получает, какими инструментами вправе пользоваться, что ему запрещено,
+какие проверки обязательны и в каком виде он сдаёт результат (PASS/FAIL/BLOCKED).
+
+    profiles/_TEMPLATE.md         шаблон контракта
+    profiles/REGISTRY.md          реестр доменов по дереву (генерируется)
+    profiles/READINESS.md         зрелость доменов и что нужно каждому
+    profiles/legal.md             контракт роли legal (ACTIVE)
+    profiles/legal-playbook.md    каркас плейбука переговоров и NDA
+
+Реестр пересобирается после изменения состава: `python3 scripts/build_registry.py`.
+Он же сверяет числа README с деревом и печатает расхождения.
 
 ## Источник
 

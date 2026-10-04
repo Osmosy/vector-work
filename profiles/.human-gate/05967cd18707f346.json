@@ -1,0 +1,14 @@
+{
+  "artifact": "/home/lenovo/projects/vector-work/profiles/productivity.md",
+  "rounds": [],
+  "closed": false,
+  "waiver": null,
+  "max_rounds": 5,
+  "open_round": {
+    "round": 1,
+    "page": "/home/lenovo/projects/vector-work/profiles/productivity.review.html",
+    "sidecar": "/home/lenovo/projects/vector-work/profiles/productivity.review.md",
+    "opened_at": 1791094564.477019,
+    "headless": null
+  }
+}

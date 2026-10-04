@@ -1,0 +1,14 @@
+{
+  "artifact": "/home/lenovo/projects/vector-work/profiles/design.md",
+  "rounds": [],
+  "closed": false,
+  "waiver": null,
+  "max_rounds": 5,
+  "open_round": {
+    "round": 1,
+    "page": "/home/lenovo/projects/vector-work/profiles/design.review.html",
+    "sidecar": "/home/lenovo/projects/vector-work/profiles/design.review.md",
+    "opened_at": 1791094563.5715868,
+    "headless": null
+  }
+}

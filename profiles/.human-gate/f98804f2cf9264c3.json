@@ -1,0 +1,14 @@
+{
+  "artifact": "/home/lenovo/projects/vector-work/profiles/marketing.md",
+  "rounds": [],
+  "closed": false,
+  "waiver": null,
+  "max_rounds": 5,
+  "open_round": {
+    "round": 1,
+    "page": "/home/lenovo/projects/vector-work/profiles/marketing.review.html",
+    "sidecar": "/home/lenovo/projects/vector-work/profiles/marketing.review.md",
+    "opened_at": 1791094564.0800872,
+    "headless": null
+  }
+}

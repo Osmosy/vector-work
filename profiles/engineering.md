@@ -1,0 +1,118 @@
+# Контракт работника: engineering
+
+    роль:        engineering
+    версия:      0.1
+    статус:      DRAFT — каркас, не прошёл human-gate
+    владелец:    <кто отвечает>
+    домен:       skills/cowork-roles/engineering/ — 10 навыков (по дереву)
+    источник:    Anthropic Cowork (Apache-2.0)
+
+## 0. Состав домена (по дереву)
+
+    architecture
+    code-review
+    debug
+    deploy-checklist
+    documentation
+    incident-response
+    standup
+    system-design
+    tech-debt
+    testing-strategy
+
+Что делает каждый навык — по его собственному описанию:
+
+    architecture               Create or evaluate an architecture decision record (ADR). Use when choosing between technologies (e.g., Kafka vs SQS), documenting a design decision with trade-offs and c
+    code-review                Review code changes for security, performance, and correctness. Trigger with a PR URL or diff, "review this before I merge", "is this code safe?", or when checking a chan
+    debug                      Structured debugging session — reproduce, isolate, diagnose, and fix. Trigger with an error message or stack trace, "this works in staging but not prod", "something broke
+    deploy-checklist           Pre-deployment verification checklist. Use when about to ship a release, deploying a change with database migrations or feature flags, verifying CI status and approvals b
+    documentation              Write and maintain technical documentation. Trigger with "write docs for", "document this", "create a README", "write a runbook", "onboarding guide", or when the user nee
+    incident-response          Run an incident response workflow — triage, communicate, and write postmortem. Trigger with "we have an incident", "production is down", an alert that needs severity asse
+    standup                    Generate a standup update from recent activity. Use when preparing for daily standup, summarizing yesterday's commits and PRs and ticket moves, formatting work into yeste
+    system-design              Design systems, services, and architectures. Trigger with "design a system for", "how should we architect", "system design for", "what's the right architecture for", or w
+    tech-debt                  Identify, categorize, and prioritize technical debt. Trigger with "tech debt", "technical debt audit", "what should we refactor", "code health", or when the user asks abo
+    testing-strategy           Design test strategies and test plans. Trigger with "how should we test", "test strategy for", "write tests for", "test plan", "what tests do we need", or when the user n
+
+## 1. Что работник получает на входе
+
+Обязательные поля постановки. Без любого из них — `BLOCKED`, не додумывать.
+
+    задача      <что нужно сделать — одинаково для всех доменов>
+    вход        <файл/текст/данные — путь или содержимое>
+    <поле>      <РЕШЕНИЕ: какие поля нужны именно этому домену>
+
+## 2. Источники истины (по приоритету)
+
+1. <РЕШЕНИЕ: первичный источник — что здесь считается «оригиналом»>
+2. <РЕШЕНИЕ: внешний первоисточник для сверки>
+3. <РЕШЕНИЕ: внутренний документ организации — политика, регламент>
+4. **Навыки домена — исполняемая истина процесса.** Файлы:
+   `skills/cowork-roles/engineering/skills/<навык>/SKILL.md` (10 шт.)
+   Правило дома: при расхождении документа и навыка — прав навык.
+
+## 3. Разрешённые инструменты (least privilege)
+
+Права объявлены минимальным набором — по факту требований навыков домена:
+
+    тулсет         инструменты                          зачем
+    file           read_file, write_file, patch, ...    чтение входа, запись заключения
+    skills         skills_list, skill_view              загрузка навыков домена
+    memory         memory                               факты о практике
+    connections    manage_connections                   10 MCP-серверов, 7 категорий коннекторов
+    browser        browser_*                            навыки домена адресуют веб-страницы
+
+Запрещено конструктивно: `delegate_task`, `cronjob_manage`, `computer_use`, `terminal`.
+
+Обоснование по дереву:
+  - терминал не требуется: в домене нет исполняемых скриптов, вызываемых навыком;
+  - делегирование, cron и управление компьютером не требует ни один домен библиотеки.
+
+## 4. Что разрешено и что запрещено
+
+**Разрешено:** <РЕШЕНИЕ: список действий домена>
+
+**Запрещено:**
+
+- <РЕШЕНИЕ: необратимое действие этого домена — отправка/публикация/платёж; только подготовка>
+- <РЕШЕНИЕ: что нельзя менять в проверяемом артефакте>
+- утверждение без источника — понижать до `[web source — verify]`
+- выдумывание отсутствующих данных — помечать `<не указано>`
+
+## 5. Обязательные проверки перед сдачей
+
+   1. <РЕШЕНИЕ: машинно проверяемое условие домена>
+   2. Каждое утверждение имеет тег источника: `[settled — подтверждено <дата>, источник]`
+      либо `[web source — verify]` — проверка общая для всех доменов
+   3. Если хоть одна проверка не прошла — FAIL, а не PASS
+   4. Результат прогоняется через human-gate (exit 2 = сдавать нельзя)
+
+## 6. Формат сдачи
+
+    статус:    PASS | FAIL | BLOCKED
+    <поле>:    <РЕШЕНИЕ: что содержит результат этого домена>
+
+    PASS     проверки пройдены, человек принял через human-gate
+    FAIL     проверки не пройдены — перечислить, какие
+    BLOCKED  не хватает входа — назвать, чего
+
+## 7. Память работника
+
+    помнит:      <РЕШЕНИЕ: что сохраняется между задачами>
+    забывает:    <РЕШЕНИЕ: что не сохраняется>
+
+## 8. Зависимости и пробелы (по факту дерева)
+
+    навыков               10
+    MCP-серверов          10 (asana, atlassian, datadog, github, gmail, google calendar…)
+    категорий коннекторов 7
+    Python-скриптов       0
+    нужен браузер         да
+
+**Требует внешних систем.** Пока ни один коннектор домена не подключён, результат
+будет каркасным либо построенным на общих дефолтах, а не на данных организации.
+Подключение — задача владельца (см. `READINESS.md`).
+
+## Приёмка
+
+Контракт не вступает в силу, пока не прошёл `human-gate`: названный ревьюер, нулевой
+открытый BLOCKER (`close` возвращает 0). Прогон — `profiles/engineering.review.md`.
