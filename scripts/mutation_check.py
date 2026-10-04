@@ -44,9 +44,14 @@ def edit(where, rel, old, new):
 
 
 def declared_checks():
-    """Число проверок — из самого валидатора, не из головы."""
-    t = (ROOT / VALIDATOR).read_text(errors="replace")
-    m = re.search(r'^N_CHECKS\s*=\s*(\d+)', t, re.M)
+    """Число проверок — из самого валидатора, не из головы.
+
+    N_CHECKS теперь вычисляется В ПРОГОНЕ (len(seen)), поэтому статически его не
+    прочесть: запускаем валидатор на чистом дереве и берём число из его вывода.
+    """
+    r = subprocess.run([sys.executable, VALIDATOR], cwd=ROOT,
+                       capture_output=True, text=True)
+    m = re.search(r'проверок выполнено:\s*(\d+)', r.stdout)
     return int(m.group(1)) if m else None
 
 
@@ -213,7 +218,6 @@ def main():
 
     # инвариант N1: журнал приёмки не пишет ни один скрипт
     jbad = journal_not_written_by_scripts()
-    n_checks = (n_checks or 0) + 1
     if jbad:
         for b in jbad:
             print(f"  MISS N1  {b}")
@@ -227,7 +231,8 @@ def main():
     print(f"\nмутаций поймано: {ok}/{total}")
     if n_checks is not None:
         covered = len({m[0] for m in MUTATIONS} | {c[0] for c in DELETE_CASES})
-        print(f"проверок в валидаторе: {n_checks}; покрыто мутациями кодов: {covered}")
+        print(f"проверок в валидаторе: {n_checks}; покрыто мутациями кодов: {covered} "
+              f"(+ инвариант N1 отдельно)")
     if notapplied:
         print("\nмутации, которые не применились (паттерн не найден):")
         for n in notapplied:

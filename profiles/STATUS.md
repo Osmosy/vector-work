@@ -45,7 +45,7 @@
 
 ## Проверки (CI на каждый push)
 
-    25 проверок, коды S1–S23 (включая S7b, S11b)
+    26 проверок, коды S1–S24 (включая S7b, S11b)
       S1   каталог домена без SKILL.md
       S2   число навыков в контракте ≠ дерево
       S3   число в таблице ролей README ≠ дерево
@@ -70,8 +70,10 @@
       S21  проза REGISTRY.md о терминале/браузере ≠ таблица тулсетов
       S22  бейдж синхронизации ≠ ревизия в upstream.lock.json
       S23  контракт не называет закреплённую ревизию апстрима
+      S24  отличие от апстрима не отмечено в MODIFICATIONS.md
 
-    мутаций в mutation_check.py: 30, каждая обязана дать ERROR — 30/30
+    мутаций в mutation_check.py: 36, каждая обязана дать ERROR — 36/36
+      + инвариант N1: ни один скрипт не пишет в журнал приёмки
     счётчик «проверок выполнено» берётся из факта, не хардкодится
 
 Дополнительно, отдельным заданием по расписанию (понедельник 06:00 UTC):
@@ -83,10 +85,10 @@
     scripts/_tree.py               общий сканер: scan(), toolsets_need(), запреты
     scripts/build_registry.py      REGISTRY.md + registry.json + расхождения README
     scripts/build_contracts.py     контракты + body-hashes.json
-    scripts/build_reviews.py       честные review-файлы (PAGE/MANUAL/BATCH)
+    scripts/build_reviews.py       отчёт и --draft (приёмку НЕ пишет)
     scripts/build_readiness.py     READINESS.md (ручной раздел между маркерами)
-    scripts/validate_structure.py  25 проверок
-    scripts/mutation_check.py      30 мутаций
+    scripts/validate_structure.py  26 проверок
+    scripts/mutation_check.py      36 мутаций
     scripts/check_reviews.py       сверка приёмки по отпечаткам (без внешнего гейта)
     scripts/check_upstream.py      сверка/пиннинг апстрима (--pin, --write-badge, --check)
     scripts/gate_status.py         сводка гейта (локально; без него деградирует)
