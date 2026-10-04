@@ -18,6 +18,7 @@
   S9  REGISTRY.md и README согласованы по числу доменов
   S10 READINESS.md не ссылается на несуществующие домены
   S11 orchestrator.md описывает все домены и его числа совпадают с деревом
+  S11b блок приёмки в orchestrator.md (между маркерами) не отстал от факта
 """
 import sys, re, json, pathlib
 
@@ -189,6 +190,59 @@ else:
     missing = set(dom) - seen - SKIP_CONTRACT   # витрины не обязаны быть ролью в списке
     if missing:
         errors.append(f"S11 orchestrator.md не описывает домены: {', '.join(sorted(missing))}")
+
+checks_seen.add('S11b')
+# S11b — блок приёмки в orchestrator.md (между маркерами gen:acceptance) не отстал.
+# Сверяем НЕ текст с текстом, а блок с ФАКТОМ: число контрактов, плейбуков и
+# разбивка по видам приёмки. Ручная правка блока видна сразу.
+if orch.exists():
+    _ot = orch.read_text(errors="replace")
+    _s, _e = "<!-- gen:acceptance:start -->", "<!-- gen:acceptance:end -->"
+    if _s not in _ot or _e not in _ot:
+        errors.append("S11b orchestrator.md: нет маркеров gen:acceptance")
+    else:
+        _blk = _ot.split(_s, 1)[1].split(_e, 1)[0]
+        _acc = T.acceptance()
+        _m = re.search(r'Контрактов работников:\s*\*{0,2}(\d+)\*{0,2}', _blk)
+        if not _m:
+            errors.append("S11b orchestrator.md: в блоке нет «Контрактов работников: N»")
+        elif int(_m.group(1)) != _acc["contracts"]:
+            errors.append(f"S11b orchestrator.md: контрактов {_m.group(1)} "
+                          f"≠ факт {_acc['contracts']}")
+        _m2 = re.search(r'плейбуков:\s*(\d+)', _blk)
+        if _m2 and int(_m2.group(1)) != len(_acc["playbooks"]):
+            errors.append(f"S11b orchestrator.md: плейбуков {_m2.group(1)} "
+                          f"≠ факт {len(_acc['playbooks'])}")
+        for _k, _n in _acc["by_kind"].items():
+            _mk = re.search(rf'^\s*{_k}\s+(\d+)\s', _blk, re.M)
+            if not _mk:
+                errors.append(f"S11b orchestrator.md: нет строки приёмки {_k}")
+            elif int(_mk.group(1)) != _n:
+                errors.append(f"S11b orchestrator.md: {_k} {_mk.group(1)} ≠ факт {_n}")
+
+checks_seen.add('S20')
+# S20 — числа метрик в STATUS.md совпадают с фактом (три величины раздельно).
+# Раньше здесь стояли 128 плейсхолдеров при факте 115 и 3 открытых при факте 4 —
+# вписанное вручную число расходится молча и читается как состояние.
+_st = (PR / "STATUS.md").read_text(errors="replace")
+_mt = dict(typical=0, open_decisions=0, placeholders=0)
+for _p in sorted(PR.glob("*.md")):
+    if _p.stem.startswith("_") or _p.stem in NOT_CONTRACT or _p.stem.endswith(".review"):
+        continue
+    _x = _p.read_text(errors="replace")
+    _mt["typical"] += _x.count("[Т]")
+    _mt["open_decisions"] += _x.count("<РЕШЕНИЕ")
+    _mt["placeholders"] += len(re.findall(r'<[а-яё][^>]{2,40}>', _x))
+for _label, _re_pat, _val in [
+    ("типовых полей", r'типовых полей \[Т\]\s+(\d+)', _mt["typical"]),
+    ("открытых решений", r'открытых решений\s+(\d+)', _mt["open_decisions"]),
+    ("плейсхолдеров", r'плейсхолдеров\s*(?:<…>)?\s+(\d+)', _mt["placeholders"]),
+]:
+    _m = re.search(_re_pat, _st)
+    if not _m:
+        errors.append(f"S20 STATUS.md: нет числа «{_label}»")
+    elif int(_m.group(1)) != _val:
+        errors.append(f"S20 STATUS.md: {_label} {_m.group(1)} ≠ факт {_val}")
 
 checks_seen.add('S12')
 # S12 — приёмка подкреплена отпечатком тела. Правка тела без нового ревью — ошибка.

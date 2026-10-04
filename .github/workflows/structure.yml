@@ -40,11 +40,13 @@ jobs:
         run: |
           rm -rf /tmp/snap1 /tmp/snap2 && mkdir -p /tmp/snap1 /tmp/snap2
           cp profiles/*.md profiles/body-hashes.json /tmp/snap1/
+          cp agents/orchestrator.md /tmp/snap1/
           python3 scripts/build_registry.py
           python3 scripts/build_contracts.py
           python3 scripts/build_reviews.py
           python3 scripts/build_readiness.py
           cp profiles/*.md profiles/body-hashes.json /tmp/snap2/
+          cp agents/orchestrator.md /tmp/snap2/
           if ! diff -rq /tmp/snap1 /tmp/snap2; then
             echo "::error::генераторы не идемпотентны — второй прогон меняет дерево"
             exit 1

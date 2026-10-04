@@ -199,6 +199,56 @@ def build(dom, r, descs, keep_status=None):
     return "\n".join(L)
 
 
+def sync_orchestrator():
+    """Блок приёмки в agents/orchestrator.md — МЕЖДУ маркерами.
+
+    Зачем: этот блок — не текст о числах, а то, по чему оркестратор принимает
+    решение (можно ли доверять полю контракта). Вписанный руками, он расходится
+    с фактом молча: уже расходился — говорил «PAGE 2», тогда как контракт
+    на странице ревью открывался один, а второй PAGE — плейбук, не контракт.
+    """
+    o = T.ROOT / "agents" / "orchestrator.md"
+    if not o.exists():
+        return
+    text = o.read_text(errors="replace")
+    start = "<!-- gen:acceptance:start -->"
+    end = "<!-- gen:acceptance:end -->"
+    if start not in text or end not in text:
+        print("  orchestrator: маркеров gen:acceptance нет — блок не обновлён")
+        return
+    a = T.acceptance()
+    kind_label = {"PAGE": "открывалась страница ревью",
+                  "MANUAL": "доведён вручную, нормы сверены",
+                  "BATCH": "принято ПАКЕТОМ по слову владельца 2026-10-04"}
+    lines = [
+        start,
+        f"Контрактов работников: **{a['contracts']}**, плейбуков: {len(a['playbooks'])}. "
+        f"Все ACTIVE, но приёмка разная:",
+        "",
+    ]
+    for k in ("PAGE", "MANUAL", "BATCH"):
+        n = a["by_kind"].get(k, 0)
+        if n:
+            lines.append(f"    {k:7} {n:3}  {kind_label[k]}")
+    for stem, kind in a["playbooks"]:
+        lines.append(f"    {kind or '—':7}   1  {stem} — плейбук, не контракт домена")
+    lines += [
+        "",
+        "Приёмка привязана к телу отпечатком `body_sha256` (profiles/body-hashes.json).",
+        "Правка тела без нового ревью роняет проверку S12.",
+        end,
+    ]
+    block = "\n".join(lines)
+    import re as _re
+    new = _re.sub(re.escape(start) + r".*?" + re.escape(end), block, text, flags=_re.S)
+    if new != text:
+        o.write_text(new)
+        print(f"  orchestrator: блок приёмки обновлён ({a['contracts']} контрактов, "
+              f"{len(a['playbooks'])} плейбук)")
+    else:
+        print("  orchestrator: блок приёмки уже актуален")
+
+
 def metrics(text):
     """Три РАЗНЫЕ величины, а не одна «слоты»: типовое, открытые решения владельца,
     незаполненные плейсхолдеры. Раньше gate_status складывал их в одну сумму."""
@@ -240,10 +290,14 @@ def main():
     for p in sorted(OUT.glob("*.md")):
         if p.stem.startswith("_") or p.stem in {"REGISTRY", "READINESS", "STATUS"}:
             continue
-        if p.stem.endswith(".review") or p.stem.endswith("-playbook"):
+        if p.stem.endswith(".review"):
             continue
+        # плейбук тоже проходит приёмку — его тело тоже привязываем отпечатком
+        # (раньше он был исключён, поэтому review остался в легаси-формате)
         digests[p.stem] = body_hash(p.read_text(errors="replace"))
     json.dump(digests, open(OUT / "body-hashes.json", "w"), ensure_ascii=False, indent=1)
+
+    sync_orchestrator()
 
     print(f"контрактов собрано: {len(made)}")
     tot = dict(typical=0, open_decisions=0, placeholders=0)

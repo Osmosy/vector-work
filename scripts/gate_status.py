@@ -51,10 +51,15 @@ def main():
     bh = OUT / "body-hashes.json"
     hashes = json.loads(bh.read_text()) if bh.exists() else {}
 
+    # Контракты — по одному на домен. Плейбук (legal-playbook) — ОТДЕЛЬНЫЙ документ:
+    # он проходит ревью, но контрактом роли не является. Раньше он попадал в счёт
+    # «18 контрактов», из-за чего оркестратор писал «PAGE 2».
     contracts = [p for p in sorted(OUT.glob("*.md"))
                  if not p.stem.startswith("_")
                  and p.stem not in {"REGISTRY", "READINESS", "STATUS"}
-                 and not p.stem.endswith(".review")]
+                 and not p.stem.endswith(".review")
+                 and not p.stem.endswith("-playbook")]
+    playbooks = [p for p in sorted(OUT.glob("*.md")) if p.stem.endswith("-playbook")]
 
     print(f"{'контракт':26} {'приёмка':8} {'[Т]':>4} {'<РЕШ':>5} {'<…>':>5}  отпечаток")
     print("-" * 78)
@@ -69,7 +74,8 @@ def main():
         print(f"{p.stem:26} {kind:8} {m['typical']:>4} {m['open_decisions']:>5} "
               f"{m['placeholders']:>5}  {hashes.get(p.stem, '—')}")
     print("-" * 78)
-    print(f"ИТОГО по {len(contracts)} контрактам:")
+    print(f"ИТОГО по {len(contracts)} контрактам"
+          + (f" + {len(playbooks)} плейбук" if playbooks else "") + ":")
     print(f"  типовых [Т] {tot['typical']}, открытых <РЕШЕНИЕ {tot['open_decisions']}, "
           f"плейсхолдеров <…> {tot['placeholders']}")
     print("  (три РАЗНЫЕ величины, а не одна «слоты»)")

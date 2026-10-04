@@ -25,7 +25,10 @@ OWNER = "Михаил (владелец, Osmosy)"
 
 # Контракты, которые владелец реально открывал на странице ревью 2026-10-04.
 # Остальные приняты ПАЧКОЙ — и это надо сказать словами, а не шаблоном.
-REVIEWED_BY_PAGE = {"engineering", "legal-playbook"}
+REVIEWED_BY_PAGE = {"engineering"}
+# Плейбук legal — отдельный документ (не контракт домена), владелец открывал его
+# на странице ревью раньше остальных. Держим в общем счёте ОТДЕЛЬНО от контрактов.
+PLAYBOOK_PAGE = {"legal-playbook"}
 # legal доведён вручную, но его страница ревью — раунд 1 из более раннего прогона
 MANUAL = {"legal"}
 
@@ -63,7 +66,7 @@ def main():
                                       "владелец:", "домен:", "источник:")):
                 first_body = s[:80]
                 break
-        if stem in REVIEWED_BY_PAGE:
+        if stem in REVIEWED_BY_PAGE or stem in PLAYBOOK_PAGE:
             kind, note = "PAGE", PAGE_NOTE
         elif stem in MANUAL:
             kind, note = "MANUAL", "Доведён вручную; нормы РФ сверены по первоисточнику 2026-10-04."
@@ -85,6 +88,8 @@ def main():
     for stem in sorted(MANUAL):
         print(f"  MANUAL  {stem} — доведён вручную")
     print(f"  BATCH   остальные — принято пакетом, построчного ревью не было")
+    for stem in sorted(PLAYBOOK_PAGE):
+        print(f"  PAGE    {stem} — плейбук (не контракт домена), открывался на странице")
     print(f"\nотпечаток тела записан в каждый review → правка тела роняет приёмку")
 
 

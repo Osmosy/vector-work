@@ -175,6 +175,45 @@ def discrepancies(rows=None):
     return dif
 
 
+def acceptance():
+    """Фактическая приёмка — по review-файлам, а не по памяти.
+
+    Разделяет ДВЕ разные вещи, которые раньше сливались в «18 контрактов»:
+      contracts — контракты работников (по одному на домен, кроме витрины);
+      playbooks — плейбуки (legal-playbook): документ проходит ревью, но
+                  контрактом не является и в права роли не входит.
+
+    Возвращает: by_kind (PAGE/MANUAL/BATCH -> сколько), playbooks [(имя, вид)],
+    missing (контракт без review-файла), total (всего принятых документов).
+    """
+    import json as _json
+    skip = {"REGISTRY", "READINESS", "STATUS"}
+    bh = PROFILES / "body-hashes.json"
+    hashes = _json.loads(bh.read_text()) if bh.exists() else {}
+    by_kind, playbooks, missing = {}, [], []
+    for p in sorted(PROFILES.glob("*.md")):
+        stem = p.stem
+        if stem.startswith("_") or stem in skip or stem.endswith(".review"):
+            continue
+        rev = PROFILES / f"{stem}.review.md"
+        kind = None
+        if rev.exists():
+            m = re.search(r'applied:\s*(\w+)', rev.read_text(errors="replace"))
+            kind = m.group(1) if m else None
+        if stem.endswith("-playbook"):
+            playbooks.append((stem, kind))
+            continue
+        if stem not in hashes:          # не контракт домена
+            continue
+        if kind:
+            by_kind[kind] = by_kind.get(kind, 0) + 1
+        else:
+            missing.append(stem)
+    total = sum(by_kind.values()) + len(playbooks)
+    return dict(by_kind=by_kind, playbooks=playbooks, missing=missing,
+                total=total, contracts=sum(by_kind.values()))
+
+
 def own_skills():
     """Свои навыки экосистемы: каталоги в skills/ вне cowork-roles/, с SKILL.md."""
     out = []
