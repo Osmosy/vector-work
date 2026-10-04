@@ -40,6 +40,10 @@ errors, notes = [], []
 checks_seen = set()   # коды фактически выполненных проверок (для честного счётчика)
 
 
+def rows_of_tree():
+    return sorted(tree_domains())
+
+
 def tree_domains():
     out = {}
     for d in sorted(CR.iterdir()):
@@ -319,6 +323,25 @@ for rel in ["docs/vector-work.architecture.json", "docs/vector-work.architecture
         aliases = {"product-management": "PM", "human-resources": "HR"}
         if dom not in s and aliases.get(dom, "\x00") not in s:
             errors.append(f"S18 {rel}: домен {dom} не показан на схеме")
+
+# S19 — колонка «Контракт» в таблице ролей README соответствует приёмке.
+# Роль с «—» не должна иметь review-файла, и наоборот: молчаливое расхождение
+# колонки с фактом читатель принимает за состояние.
+checks_seen.add('S19')
+_rd = (ROOT / "README.md").read_text(errors="replace")
+for r in rows_of_tree():
+    dom = r
+    m = re.search(rf'\|\s*\*\*{re.escape(dom)}\*\*\s*\|[^|]*\|[^|]*\|\s*([^|]*?)\s*\|',
+                  _rd)
+    if not m:
+        continue
+    cell = m.group(1).strip()
+    rev = PR / f"{dom}.review.md"
+    mm = re.search(r'applied:\s*(\w+)', rev.read_text(errors="replace")) if rev.exists() else None
+    if mm and cell == "—":
+        errors.append(f"S19 README: {dom} — «—», а приёмка есть ({mm.group(1)})")
+    if not mm and cell not in ("—", ""):
+        errors.append(f"S19 README: {dom} — «{cell}», а review-файла нет")
 
 # Счётчик проверок — из ФАКТА, а не хардкод: собираем коды, которые реально
 # срабатывали (checks_seen наполняется при каждой выполненной проверке).
